@@ -4,14 +4,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme/colors';
 import { ScreenHeader } from '../components/ScreenHeader.component';
 import { BottomNavBar, TabKey } from '../components/BottomNavBar.component';
-
+import { CreateTaskScreen } from './CreateTask.screen';
 export const HomeScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('tareas');
+  const [showCreateTask, setShowCreateTask] = useState(false);
 
   const handleCreateTask = () => {
-    // Aquí más adelante navegarás a la pantalla "Crear tarea"
-    console.log('Crear tarea');
+  setShowCreateTask(true);
   };
+  
+  if (showCreateTask) {
+  return <CreateTaskScreen />;
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
