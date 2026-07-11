@@ -14,13 +14,15 @@ interface Props{
 
     onBack:()=>void;
     onChangePassword:()=>void;
+    onLogout:()=>void;
 
 }
 
 export const SettingsScreen = ({
 
     onBack,
-    onChangePassword
+    onChangePassword,
+    onLogout
 
 }:Props)=>{
 
@@ -85,7 +87,7 @@ export const SettingsScreen = ({
 </TouchableOpacity>
 
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onLogout}>
 
           <Text style={styles.logout}>
             Cerrar sesión

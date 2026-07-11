@@ -34,8 +34,11 @@ const INITIAL_TASKS: Task[] = [
 ];
 
 
+interface Props{
+    onLogout:()=>void;
+}
 
-export const HomeScreen: React.FC = () => {
+export const HomeScreen: React.FC<Props> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('tareas');
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -126,6 +129,7 @@ export const HomeScreen: React.FC = () => {
                 setShowSettings(false);
                 setShowChangePassword(true);
             }}
+            onLogout={onLogout}
         />
 
     );
