@@ -8,6 +8,11 @@ import { TaskCard } from '../components/TaskCard.component';
 import { CreateTaskScreen } from './CreateTask.screen';
 import { EditTaskScreen } from './EditTask.screen';
 import { Task } from '../models/Task';
+import { SettingsScreen } from './Settings.screen';
+import { ChangePasswordScreen } from './ChangePassword.screen';
+
+
+
 
 // Datos de ejemplo en memoria, mientras no exista un Context/Reducer global.
 // Sirven para poder ver y probar el listado + la edición en la demo.
@@ -28,12 +33,16 @@ const INITIAL_TASKS: Task[] = [
   },
 ];
 
+
+
 export const HomeScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('tareas');
   const [showCreateTask, setShowCreateTask] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // useEffect: simula la carga inicial de tareas (como si viniera de un servidor)
   useEffect(() => {
@@ -94,6 +103,52 @@ export const HomeScreen: React.FC = () => {
     );
   };
 
+  const handleChangeTab = (tab: TabKey) => {
+
+    setActiveTab(tab);
+
+    if (tab === 'ajustes') {
+        setShowSettings(true);
+    }
+
+};
+
+  if(showSettings){
+
+    return(
+
+        <SettingsScreen
+            onBack={()=>{
+                setShowSettings(false);
+                setActiveTab('tareas');
+            }}
+            onChangePassword={()=>{
+                setShowSettings(false);
+                setShowChangePassword(true);
+            }}
+        />
+
+    );
+
+}
+
+if(showChangePassword){
+    return(
+        <ChangePasswordScreen
+            onBack={()=>{
+                setShowChangePassword(false);
+                setShowSettings(true);
+            }}
+        />
+
+    );
+
+}
+
+
+
+
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -104,6 +159,9 @@ export const HomeScreen: React.FC = () => {
       </SafeAreaView>
     );
   }
+
+
+
 
   if (showCreateTask) {
     return (
@@ -126,6 +184,10 @@ export const HomeScreen: React.FC = () => {
       />
     );
   }
+
+
+
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -154,11 +216,13 @@ export const HomeScreen: React.FC = () => {
         />
       </View>
 
-      <BottomNavBar
-        activeTab={activeTab}
-        onChangeTab={setActiveTab}
-        onPressFab={handleCreateTask}
-      />
+
+
+<BottomNavBar
+  activeTab={activeTab}
+  onChangeTab={handleChangeTab}
+  onPressFab={handleCreateTask}
+/>
     </SafeAreaView>
   );
 };
