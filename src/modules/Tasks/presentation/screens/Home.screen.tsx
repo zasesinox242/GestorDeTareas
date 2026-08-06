@@ -4,13 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { AppColors } from '../theme/colors';
+import { AppColors } from '../../../config/theme/colors';
 import { useTheme } from '../theme/ThemeContext';
 import { ScreenHeader } from '../components/ScreenHeader.component';
 import { TaskCard } from '../components/TaskCard.component';
-import { Task } from '../models/Task';
-import { useTasks } from '../context/TasksContext';
-import { RootStackParamList } from '../navigation/types';
+import { Task } from '../domain/entities/Task';
+import { useTasks } from './hooks/TasksContext';
+import { RootStackParamList } from '../../../config/navigation/types';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 

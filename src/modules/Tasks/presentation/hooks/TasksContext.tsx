@@ -7,14 +7,14 @@ import React, {
   useState,
 } from 'react';
 
-import { Task, TaskPriority } from '../models/Task';
+import { Task, TaskPriority } from '../../domain/entities/Task';
 import { useAuth } from './AuthContext';
 import {
   computeProductivity,
   loadTasksForUser,
   ProductivityStats,
   saveTasksForUser,
-} from '../services/taskService';
+} from '../../data/repositories/taskService';
 
 export interface NewTaskInput {
   title: string;

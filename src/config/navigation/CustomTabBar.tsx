@@ -1,7 +1,7 @@
 import React from 'react';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-import { BottomNavBar, TabKey } from '../components/BottomNavBar.component';
+import { BottomNavBar, TabKey } from '../config/navigation/BottomNavBar.component';
 
 // Puente entre el Tab.Navigator de react-navigation y nuestro componente
 // visual BottomNavBar (que ya incluye el botón grande de "agregar tarea").

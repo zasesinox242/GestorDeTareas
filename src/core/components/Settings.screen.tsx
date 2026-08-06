@@ -10,11 +10,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { AppColors } from '../theme/colors';
+import { AppColors } from '../../config/theme/colors';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { useTasks } from '../context/TasksContext';
-import { RootStackParamList } from '../navigation/types';
+import { useTasks } from '../../modules/Tasks/presentation/hooks/TasksContext';
+import { RootStackParamList } from '../../config/navigation/types';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList>;
 

@@ -2,11 +2,11 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { useAuth } from '../context/AuthContext';
-import { LoginScreen } from '../screens/Login.screen';
-import { RegisterScreen } from '../screens/RegisterScreen';
-import { CreateTaskScreen } from '../screens/CreateTask.screen';
-import { EditTaskScreen } from '../screens/EditTask.screen';
-import { ChangePasswordScreen } from '../screens/ChangePassword.screen';
+import { LoginScreen } from '../../modules/Auth/presentation/screens/Login.screen';
+import { RegisterScreen } from '../../modules/Auth/presentation/screens/RegisterScreen';
+import { CreateTaskScreen } from '../../modules/Tasks/presentation/screens/CreateTask.screen';
+import { EditTaskScreen } from '../../modules/Tasks/presentation/screens/EditTask.screen';
+import { ChangePasswordScreen } from '../../modules/Auth/presentation/screens/ChangePassword.screen';
 import { MainTabs } from './MainTabs';
 import { RootStackParamList } from './types';
 

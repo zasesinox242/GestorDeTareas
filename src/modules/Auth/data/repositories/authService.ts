@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { User } from '../models/User';
+import { User } from '../modules/Auth/domain/entities/User';
 import { STORAGE_KEYS } from './storageKeys';
 
 // Este archivo concentra TODA la lógica de negocio relacionada a la cuenta

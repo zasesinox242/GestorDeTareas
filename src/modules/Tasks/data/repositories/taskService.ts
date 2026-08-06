@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Task } from '../models/Task';
+import { Task } from '../../domain/entities/Task';
 import { SAMPLE_TASKS } from '../data/sampleTasks';
-import { buildTasksKey } from './storageKeys';
+import { buildTasksKey } from '../../../../core/utils/storageKeys';
 
 // Lógica de negocio de las tareas: dónde se guardan y cómo se calculan
 // las métricas de productividad. Sin nada de React ni de UI aquí.

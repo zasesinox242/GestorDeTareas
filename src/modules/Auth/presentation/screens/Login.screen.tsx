@@ -1,70 +1,61 @@
 import React, { useMemo, useState } from 'react';
 import {
-  SafeAreaView,
+  View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { AppColors } from '../theme/colors';
+import { AppColors } from '../../../../config/theme/colors';
 import { useTheme } from '../theme/ThemeContext';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, AuthError } from '../context/AuthContext';
+import { RootStackParamList } from '../../../../config/navigation/types';
 
-// Pantalla de registro: sólo UI. Guardar la cuenta es responsabilidad
-// de AuthContext -> authService.
-export const RegisterScreen: React.FC = () => {
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+
+// Pantalla de login: sólo UI. La validación de credenciales vive en
+// AuthContext -> authService, no aquí.
+export const LoginScreen: React.FC = () => {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const navigation = useNavigation();
-  const { register } = useAuth();
+  const navigation = useNavigation<Navigation>();
+  const { login } = useAuth();
 
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Campos requeridos', 'Completa todos los campos.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden.');
-      return;
-    }
-
+  const handleLogin = async () => {
     try {
-      await register({ name, email, password });
-      Alert.alert('Registro exitoso', 'Ahora puedes iniciar sesión.', [
-        { text: 'Aceptar', onPress: () => navigation.goBack() },
-      ]);
-    } catch {
-      Alert.alert('Error', 'No se pudo guardar el usuario.');
+      const user = await login(email, password);
+      Alert.alert('Bienvenido', user.name);
+      // No hace falta navegar manualmente: al autenticarse, RootNavigator
+      // cambia automáticamente al grupo de pantallas de la app logueada.
+    } catch (error) {
+      const message =
+        error instanceof AuthError
+          ? error.message
+          : 'No fue posible iniciar sesión.';
+      Alert.alert('Error', message);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Crear cuenta</Text>
+      <Text style={styles.title}>Gestor de Tareas</Text>
 
-      <TextInput
-        placeholder="Nombre"
-        placeholderTextColor={colors.textSecondary}
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+      <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
 
       <TextInput
         placeholder="Correo"
         placeholderTextColor={colors.textSecondary}
-        style={styles.input}
         value={email}
         onChangeText={setEmail}
+        style={styles.input}
         autoCapitalize="none"
         keyboardType="email-address"
       />
@@ -72,27 +63,18 @@ export const RegisterScreen: React.FC = () => {
       <TextInput
         placeholder="Contraseña"
         placeholderTextColor={colors.textSecondary}
-        style={styles.input}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-      />
-
-      <TextInput
-        placeholder="Confirmar contraseña"
-        placeholderTextColor={colors.textSecondary}
         style={styles.input}
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Registrarse</Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Iniciar sesión</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.back}>← Volver al Login</Text>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+        <Text style={styles.register}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -107,16 +89,20 @@ const createStyles = (colors: AppColors) =>
       backgroundColor: colors.background,
     },
     title: {
-      fontSize: 30,
+      fontSize: 32,
       fontWeight: '700',
       color: colors.textPrimary,
-      marginBottom: 30,
       textAlign: 'center',
+    },
+    subtitle: {
+      textAlign: 'center',
+      marginBottom: 35,
+      color: colors.textSecondary,
     },
     input: {
       backgroundColor: colors.surface,
-      padding: 15,
       borderRadius: 10,
+      padding: 15,
       marginBottom: 15,
       color: colors.textPrimary,
       borderWidth: 1,
@@ -127,14 +113,13 @@ const createStyles = (colors: AppColors) =>
       padding: 15,
       borderRadius: 10,
       alignItems: 'center',
-      marginTop: 10,
     },
     buttonText: {
       color: colors.surface,
       fontWeight: '700',
       fontSize: 16,
     },
-    back: {
+    register: {
       textAlign: 'center',
       marginTop: 20,
       color: colors.primary,

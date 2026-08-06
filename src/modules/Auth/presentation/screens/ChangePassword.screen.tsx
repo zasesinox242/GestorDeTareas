@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import { AppColors } from '../theme/colors';
+import { AppColors } from '../../../../config/theme/colors';
 import { useTheme } from '../theme/ThemeContext';
 import { useAuth, AuthError } from '../context/AuthContext';
 

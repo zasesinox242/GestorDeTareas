@@ -3,13 +3,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
-import { AppColors } from '../theme/colors';
+import { AppColors } from '../../../../config/theme/colors';
 import { useTheme } from '../theme/ThemeContext';
 import { ScreenHeader } from '../components/ScreenHeader.component';
 import { PrimaryButton } from '../components/PrimaryButton.component';
-import { BackButton } from '../components/BackButton.component';
-import { TaskPriority, TASK_PRIORITIES } from '../models/Task';
-import { useTasks } from '../context/TasksContext';
+import { BackButton } from '../../../../core/components/BackButton.component';
+import { TaskPriority, TASK_PRIORITIES } from '../../domain/entities/Task';
+import { useTasks } from '../hooks/TasksContext';
 
 const PRIORITY_LABEL: Record<TaskPriority, string> = {
   BAJA: 'Baja',

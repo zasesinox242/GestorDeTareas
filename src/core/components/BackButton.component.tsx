@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { AppColors } from '../theme/colors';
-import { useTheme } from '../theme/ThemeContext';
+import { AppColors } from '../../config/theme/colors';
+import { useTheme } from '../../theme/ThemeContext';
 
 interface BackButtonProps {
   onPress: () => void;

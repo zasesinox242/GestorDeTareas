@@ -1,8 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { HomeScreen } from '../screens/Home.screen';
-import { SettingsScreen } from '../screens/Settings.screen';
+import { HomeScreen } from '../../modules/Tasks/presentation/Home.screen';
+import { SettingsScreen } from '../../core/components/Settings.screen';
 import { CustomTabBar } from './CustomTabBar';
 import { MainTabsParamList } from './types';
 
