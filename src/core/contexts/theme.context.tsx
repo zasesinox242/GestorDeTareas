@@ -6,6 +6,7 @@ import { useTheme } from "../hooks/useTheme.hook";
 type ThemeContextType = {
   palette: ThemeType;
   toggleTheme: () => void;
+  isThemeLoading: boolean;
 };
 
 type ThemeProviderProps = {
@@ -15,10 +16,10 @@ type ThemeProviderProps = {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
-  const { palette, toggleTheme } = useTheme();
+  const { palette, toggleTheme, isThemeLoading } = useTheme();
 
   return (
-    <ThemeContext.Provider value={{ palette, toggleTheme }}>
+    <ThemeContext.Provider value={{ palette, toggleTheme, isThemeLoading }}>
       <StatusBar style={palette.schema === "dark" ? "light" : "dark"} />
       {children}
     </ThemeContext.Provider>

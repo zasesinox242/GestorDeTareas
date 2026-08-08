@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Switch, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
@@ -10,6 +10,7 @@ export const SettingsScreen = () => {
   const router = useRouter();
   const { palette, toggleTheme } = useThemeContext();
   const { user, setUser } = useAuthContext();
+  const isDark = palette.schema === "dark";
 
   const handleLogout = () => {
     Alert.alert("Cerrar sesión", "¿Seguro que deseas cerrar sesión?", [
@@ -27,7 +28,7 @@ export const SettingsScreen = () => {
   };
 
   return (
-    <BackgroundView style={{ paddingTop: 30, gap: 20 }}>
+    <BackgroundView style={{ gap: 20 }}>
       <Text style={[styles.title, { color: palette.texts.primary }]}>Perfil</Text>
 
       <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
@@ -41,7 +42,19 @@ export const SettingsScreen = () => {
         )}
       </View>
 
-      <CustomButton title="Cambiar tema" variant="outlined" onPress={toggleTheme} />
+      <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
+        <Text style={[styles.section, { color: palette.texts.primary }]}>Apariencia</Text>
+        <View style={styles.row}>
+          <Text style={{ color: palette.texts.primary }}>Modo oscuro</Text>
+          <Switch
+            value={isDark}
+            onValueChange={toggleTheme}
+            trackColor={{ false: palette.colors.border, true: palette.colors.primary.default }}
+            thumbColor={palette.colors.surface}
+          />
+        </View>
+      </View>
+
       <CustomButton title="Cerrar sesión" color="error" onPress={handleLogout} />
     </BackgroundView>
   );
@@ -51,4 +64,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold" },
   card: { borderRadius: 12, padding: 16 },
   value: { fontSize: 16, fontWeight: "600" },
+  section: { fontSize: 16, fontWeight: "700", marginBottom: 12 },
+  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
 });

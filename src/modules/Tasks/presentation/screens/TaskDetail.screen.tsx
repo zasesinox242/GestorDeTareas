@@ -18,7 +18,7 @@ export const TaskDetailScreen = () => {
   const { id, task, isLoading } = useTaskDetail();
 
   return (
-    <BackgroundView style={{ paddingTop: 20 }}>
+    <BackgroundView>
       <TaskHeader title="Detalle de la tarea" />
 
       {isLoading && <ActivityIndicator />}

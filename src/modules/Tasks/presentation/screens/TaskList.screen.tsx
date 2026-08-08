@@ -15,7 +15,7 @@ export const TaskListScreen = () => {
   const { confirmDelete } = useDeleteTask(reload);
 
   return (
-    <BackgroundView style={{ paddingTop: 20 }}>
+    <BackgroundView>
       <View style={styles.header}>
         <Text style={[styles.title, { color: palette.texts.primary }]}>Mis tareas</Text>
         <FilledIconButton icon={Ionicons} name="add" onPress={() => router.push("/tasks/new")} />

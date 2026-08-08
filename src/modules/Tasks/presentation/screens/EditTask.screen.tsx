@@ -9,7 +9,7 @@ export const EditTaskScreen = () => {
   const { task, isLoading, isSaving, handleChange, handleSubmit, handleDelete } = useEditTask();
 
   return (
-    <BackgroundView style={{ paddingTop: 20 }}>
+    <BackgroundView>
       <TaskHeader title="Editar tarea" />
       {isLoading || !task ? (
         <ActivityIndicator />

@@ -7,7 +7,7 @@ export const NewTaskScreen = () => {
   const { task, isSaving, handleChange, handleSubmit } = useNewTask();
 
   return (
-    <BackgroundView style={{ paddingTop: 20 }}>
+    <BackgroundView>
       <TaskHeader title="Nueva tarea" />
       <TaskForm task={task} onChange={handleChange} onSubmit={handleSubmit} loading={isSaving} submitLabel="Crear tarea" />
     </BackgroundView>

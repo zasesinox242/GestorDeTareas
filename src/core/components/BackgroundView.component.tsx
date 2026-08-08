@@ -11,16 +11,26 @@ export const BackgroundView: FC<ViewProps> = ({
   const insets = useSafeAreaInsets();
   const { palette } = useThemeContext();
 
+  // Cualquier paddingTop/paddingBottom que venga en `style` se trata como
+  // espacio EXTRA, no como reemplazo del safe area: así ninguna pantalla
+  // puede terminar chocando con la barra de estado o de notificaciones.
+  const { paddingTop: extraTop = 0, paddingBottom: extraBottom = 0, ...restStyle } =
+    (StyleSheet.flatten(style) ?? {}) as {
+      paddingTop?: number;
+      paddingBottom?: number;
+      [key: string]: unknown;
+    };
+
   return (
     <View
       style={[
         styles.container,
         {
           backgroundColor: palette.colors.background,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
+          paddingTop: insets.top + Number(extraTop),
+          paddingBottom: insets.bottom + Number(extraBottom),
         },
-        style,
+        restStyle,
       ]}
       {...props}
     >
