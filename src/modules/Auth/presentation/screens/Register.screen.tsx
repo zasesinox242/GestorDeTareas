@@ -1,26 +1,28 @@
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable } from "react-native";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
-import { LoginForm } from "../components/LoginForm.component";
-import { useLogin } from "../hooks/useLogin.hook";
+import { RegisterForm } from "../components/RegisterForm.component";
+import { useRegister } from "../hooks/useRegister.hook";
 
-export const LoginScreen = () => {
+export const RegisterScreen = () => {
   const { palette } = useThemeContext();
-  const { credentials, dataStates, handleChange, handleLogin } = useLogin();
+  const { form, dataStates, handleChange, handleRegister } = useRegister();
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
       <Pressable
-        style={{ flex: 1, backgroundColor: palette.colors.primary.light, paddingTop: 150 }}
+        style={{ flex: 1, backgroundColor: palette.colors.primary.light, paddingTop: 100 }}
         onPress={Keyboard.dismiss}
       >
         <BackgroundView style={{ paddingTop: 50 }}>
-          <LoginForm
-            email={credentials.email}
-            password={credentials.password}
+          <RegisterForm
+            nombre={form.nombre}
+            email={form.email}
+            password={form.password}
+            onChangeNombre={(value) => handleChange("nombre", value)}
             onChangeEmail={(value) => handleChange("email", value)}
             onChangePassword={(value) => handleChange("password", value)}
-            onSubmit={handleLogin}
+            onSubmit={handleRegister}
             loading={dataStates.isLoading}
           />
         </BackgroundView>

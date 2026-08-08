@@ -1,77 +1,55 @@
-// Paleta de colores de la aplicación.
-// Aquí se define TODA la paleta (modo claro y modo oscuro).
-// El resto de la app NUNCA debe usar colores "hardcodeados": siempre debe
-// consumirlos desde aquí, a través de `useTheme()` (ver ThemeContext.tsx).
+export const darkColor = {
+  primary: {
+    light: "#A66CFF",
+    default: "#8D3CFF",
+    dark: "#6F00ED",
+  },
 
-export interface AppColors {
-  background: string;
-  surface: string;
-  surfaceAlt: string;
+  secondary: {
+    light: "#FFD85B",
+    default: "#FFC820",
+    dark: "#D9A800",
+  },
 
-  primary: string;
-  primaryDark: string;
+  background: "#0F1117",
+  surface: "#181C25",
+  surfaceSecondary: "#232937",
 
-  textPrimary: string;
-  textSecondary: string;
+  border: "#e4e6ebff",
+  divider: "#3F475A",
 
-  border: string;
+  success: "#4ADE80",
+  warning: "#FBBF24",
+  error: "#F87171",
+  info: "#60A5FA",
 
-  navBackground: string;
-  navInactive: string;
-  navActive: string;
-
-  danger: string;
-  warning: string;
-  info: string;
-}
-
-// Paleta original de la app (modo claro)
-export const lightColors: AppColors = {
-  background: '#F6F8FB',
-  surface: '#FFFFFF',
-  surfaceAlt: '#F0F2F6',
-
-  primary: '#0E9F6E',
-  primaryDark: '#0B815A',
-
-  textPrimary: '#1F2430',
-  textSecondary: '#7C8493',
-
-  border: '#E5E7EB',
-
-  navBackground: '#1F2430',
-  navInactive: '#8A93A6',
-  navActive: '#FFFFFF',
-
-  danger: '#F4573D',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  overlay: "rgba(0, 0, 0, 0.7)",
 };
 
-// Paleta equivalente para el modo oscuro, manteniendo la identidad visual
-// (mismo verde primario) pero con superficies y textos adaptados.
-export const darkColors: AppColors = {
-  background: '#12141C',
-  surface: '#1C2028',
-  surfaceAlt: '#242938',
+export const lightColor = {
+  primary: {
+    light: "#8D3CFF",
+    default: "#6F00ED",
+    dark: "#5600B8",
+  },
 
-  primary: '#12B981',
-  primaryDark: '#0E9F6E',
+  secondary: {
+    light: "#FFD85B",
+    default: "#FFC820",
+    dark: "#E6B000",
+  },
 
-  textPrimary: '#F2F4F8',
-  textSecondary: '#9AA3B5',
+  background: "#F8F9FC",
+  surface: "#FFFFFF",
+  surfaceSecondary: "#F2F4F8",
 
-  border: '#2E3442',
+  border: "#b8babeff",
+  divider: "#CBD5E1",
 
-  navBackground: '#0C0E14',
-  navInactive: '#6B7383',
-  navActive: '#FFFFFF',
+  success: "#22C55E",
+  warning: "#F59E0B",
+  error: "#EF4444",
+  info: "#3B82F6",
 
-  danger: '#F4573D',
-  warning: '#F5A623',
-  info: '#5B9BF6',
+  overlay: "rgba(15, 23, 42, 0.45)",
 };
-
-// Se mantiene este export para no romper compatibilidad con código que
-// todavía importe `colors` directamente (siempre en su versión clara).
-export const colors = lightColors;
