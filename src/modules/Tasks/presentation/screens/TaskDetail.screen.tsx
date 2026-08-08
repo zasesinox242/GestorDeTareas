@@ -12,6 +12,19 @@ const PRIORIDAD_LABEL: Record<string, string> = {
   alta: "Alta",
 };
 
+const formatFecha = (isoDate: string) => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return isoDate;
+
+  return date.toLocaleString("es-PE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export const TaskDetailScreen = () => {
   const router = useRouter();
   const { palette } = useThemeContext();
@@ -33,7 +46,7 @@ export const TaskDetailScreen = () => {
           {!!task.descripcion && <Row label="Descripción" value={task.descripcion} palette={palette} />}
           <Row label="Prioridad" value={PRIORIDAD_LABEL[task.prioridad] ?? task.prioridad} palette={palette} />
           <Row label="Estado" value={task.completada ? "Completada" : "Pendiente"} palette={palette} />
-          {!!task.fecha && <Row label="Fecha" value={task.fecha} palette={palette} />}
+          {!!task.fecha && <Row label="Fecha de creación" value={formatFecha(task.fecha)} palette={palette} />}
 
           <CustomButton
             title="Editar tarea"

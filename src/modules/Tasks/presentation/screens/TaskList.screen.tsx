@@ -15,9 +15,14 @@ export const TaskListScreen = () => {
   const { confirmDelete } = useDeleteTask(reload);
 
   return (
-    <BackgroundView>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: palette.texts.primary }]}>Mis tareas</Text>
+    <BackgroundView style={{ paddingTop: 8 }}>
+      <View style={[styles.header, { borderBottomColor: palette.colors.divider }]}>
+        <View>
+          <Text style={[styles.title, { color: palette.texts.primary }]}>Mis tareas</Text>
+          <Text style={[styles.subtitle, { color: palette.texts.tertiary }]}>
+            {tasks.length > 0 ? `${tasks.length} tarea${tasks.length === 1 ? "" : "s"}` : "Organiza tu día"}
+          </Text>
+        </View>
         <FilledIconButton icon={Ionicons} name="add" onPress={() => router.push("/tasks/new")} />
       </View>
 
@@ -26,9 +31,12 @@ export const TaskListScreen = () => {
       )}
 
       {!isLoading && tasks.length === 0 && !isError && (
-        <Text style={{ color: palette.texts.secondary }}>
-          Aún no tienes tareas registradas. Toca "+" para crear la primera.
-        </Text>
+        <View style={styles.emptyState}>
+          <Ionicons name="checkmark-done-outline" size={48} color={palette.texts.tertiary} />
+          <Text style={[styles.emptyText, { color: palette.texts.secondary }]}>
+            Aún no tienes tareas registradas. Toca "+" para crear la primera.
+          </Text>
+        </View>
       )}
 
       <FlatList
@@ -36,6 +44,7 @@ export const TaskListScreen = () => {
         keyExtractor={(item) => item.id!}
         refreshing={isLoading}
         onRefresh={reload}
+        contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <TaskCard task={item} onToggle={toggleComplete} onDelete={confirmDelete} />
         )}
@@ -45,6 +54,17 @@ export const TaskListScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 16,
+    marginBottom: 20,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   title: { fontSize: 26, fontWeight: "bold" },
+  subtitle: { fontSize: 13, marginTop: 2 },
+  list: { paddingBottom: 24 },
+  emptyState: { alignItems: "center", gap: 12, marginTop: 48 },
+  emptyText: { fontSize: 15, textAlign: "center", paddingHorizontal: 24 },
 });

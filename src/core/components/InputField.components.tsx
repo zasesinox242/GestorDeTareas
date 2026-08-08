@@ -17,11 +17,14 @@ export const InputField = ({ label, ...props }: InputFieldProps) => {
   const renderInput = () => {
     return (
       <TextInput
+        placeholderTextColor={palette.texts.tertiary}
         {...props}
         style={[
           styles.input,
           {
             borderColor: palette.colors.border,
+            backgroundColor: palette.colors.surface,
+            color: palette.texts.primary,
             height: props.multiline ? 250 : undefined,
           },
         ]}
@@ -32,7 +35,7 @@ export const InputField = ({ label, ...props }: InputFieldProps) => {
   if (label && label.length > 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.label}>{label}</Text>
+        <Text style={[styles.label, { color: palette.texts.secondary }]}>{label}</Text>
         {renderInput()}
       </View>
     );
