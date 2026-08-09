@@ -30,7 +30,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
 
   return (
     <View>
-      <Text style={styles.title}>Crear cuenta</Text>
+      <Text style={[styles.title, { color: palette.texts.primary }]}>Crear cuenta</Text>
       <Text style={[styles.subtitle, { color: palette.texts.secondary }]}>
         Regístrate para gestionar tus tareas
       </Text>
@@ -54,7 +54,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       </View>
       <CustomButton title="Registrarse" onPress={onSubmit} disabled={loading} />
       <View style={styles.login}>
-        <Text style={styles.loginText}>¿Ya tienes una cuenta?</Text>
+        <Text style={[styles.loginText, { color: palette.texts.primary }]}>¿Ya tienes una cuenta?</Text>
         <Link href="/" style={[styles.link, { color: palette.texts.link }]}>
           Ingresar
         </Link>

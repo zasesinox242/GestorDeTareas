@@ -26,7 +26,7 @@ export const LoginForm: FC<LoginFormProps> = ({
 
   return (
     <View>
-      <Text style={styles.title}>Bienvenido</Text>
+      <Text style={[styles.title, { color: palette.texts.primary }]}>Bienvenido</Text>
       <Text style={[styles.subtitle, { color: palette.texts.secondary }]}>
         Inicia sesión para continuar
       </Text>
@@ -49,7 +49,7 @@ export const LoginForm: FC<LoginFormProps> = ({
       </View>
       <CustomButton title="Ingresar" onPress={onSubmit} disabled={loading} />
       <View style={styles.signup}>
-        <Text style={styles.signupText}>¿No tienes una cuenta?</Text>
+        <Text style={[styles.signupText, { color: palette.texts.primary }]}>¿No tienes una cuenta?</Text>
         <Link href="/register" style={[styles.link, { color: palette.texts.link }]}>
           Registrarse
         </Link>
