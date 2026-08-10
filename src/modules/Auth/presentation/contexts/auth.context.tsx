@@ -1,6 +1,8 @@
 import { createContext, FC, ReactNode, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/config/firebase";
+import { clearLegacyAuthStorage } from "@/config/firebase/legacy-auth";
 import { UserEntity } from "../../domain/entities/user.entity";
-import { authRepository } from "../../di/auth.dependencies";
 
 type AuthContextType = {
   user: UserEntity | null;
@@ -15,12 +17,39 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // TODO (Firebase): reemplazar por `onAuthStateChanged(auth, ...)`
-    // para escuchar el estado de sesión en tiempo real.
-    authRepository
-      .getCurrentUser()
-      .then(setUser)
-      .finally(() => setIsLoading(false));
+    let isMounted = true;
+    let unsubscribe: VoidFunction | undefined;
+
+    void clearLegacyAuthStorage()
+      .catch(() => undefined)
+      .then(() => {
+        if (!isMounted) return;
+
+        unsubscribe = onAuthStateChanged(
+          auth,
+          (firebaseUser) => {
+            setUser(
+              firebaseUser
+                ? {
+                    id: firebaseUser.uid,
+                    email: firebaseUser.email ?? "",
+                    nombre: firebaseUser.displayName ?? undefined,
+                  }
+                : null,
+            );
+            setIsLoading(false);
+          },
+          () => {
+            setUser(null);
+            setIsLoading(false);
+          },
+        );
+      });
+
+    return () => {
+      isMounted = false;
+      unsubscribe?.();
+    };
   }, []);
 
   return (

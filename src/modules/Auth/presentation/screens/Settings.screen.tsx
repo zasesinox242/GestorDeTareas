@@ -19,9 +19,16 @@ export const SettingsScreen = () => {
         text: "Cerrar sesión",
         style: "destructive",
         onPress: async () => {
-          await logoutUseCase.execute();
-          setUser(null);
-          router.replace("/");
+          try {
+            await logoutUseCase.execute();
+            setUser(null);
+            router.replace("/");
+          } catch (error) {
+            Alert.alert(
+              "Error",
+              error instanceof Error ? error.message : "No se pudo cerrar sesión",
+            );
+          }
         },
       },
     ]);

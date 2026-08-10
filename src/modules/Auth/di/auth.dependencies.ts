@@ -1,14 +1,14 @@
-import { AuthLocalDataSourceImpl } from "../data/data-sources/local/auth.local.ds";
+import { AuthFirebaseDataSourceImpl } from "../data/data-sources/remote/auth.firebase.ds";
 import { AuthRepositoryImpl } from "../data/repositories/auth.repository.impl";
 import { LoginUseCase } from "../domain/use-cases/login.use-case";
 import { RegisterUseCase } from "../domain/use-cases/register.use-case";
 import { LogoutUseCase } from "../domain/use-cases/logout.use-case";
 
 // Data sources
-const authLocalDataSource = new AuthLocalDataSourceImpl();
+const authDataSource = new AuthFirebaseDataSourceImpl();
 
 // Repositories
-const authRepository = new AuthRepositoryImpl(authLocalDataSource);
+const authRepository = new AuthRepositoryImpl(authDataSource);
 
 // Use Cases
 export const loginUseCase = new LoginUseCase(authRepository);
