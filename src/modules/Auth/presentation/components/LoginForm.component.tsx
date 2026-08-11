@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { CustomButton } from "@/core/components/CustomButton.component";
 import { InputField } from "@/core/components/InputField.components";
 import { useThemeContext } from "@/core/contexts/theme.context";
+import { GoogleAuthButton } from "./GoogleAuthButton.component";
 
 interface LoginFormProps {
   email: string;
@@ -11,7 +12,9 @@ interface LoginFormProps {
   onChangeEmail: (value: string) => void;
   onChangePassword: (value: string) => void;
   onSubmit: VoidFunction;
+  onGoogleSubmit: VoidFunction;
   loading?: boolean;
+  googleLoading?: boolean;
 }
 
 export const LoginForm: FC<LoginFormProps> = ({
@@ -20,7 +23,9 @@ export const LoginForm: FC<LoginFormProps> = ({
   onChangeEmail,
   onChangePassword,
   onSubmit,
+  onGoogleSubmit,
   loading,
+  googleLoading,
 }) => {
   const { palette } = useThemeContext();
 
@@ -48,6 +53,11 @@ export const LoginForm: FC<LoginFormProps> = ({
         />
       </View>
       <CustomButton title="Ingresar" onPress={onSubmit} disabled={loading} />
+      <GoogleAuthButton
+        onPress={onGoogleSubmit}
+        loading={googleLoading}
+        disabled={loading}
+      />
       <View style={styles.signup}>
         <Text style={[styles.signupText, { color: palette.texts.primary }]}>¿No tienes una cuenta?</Text>
         <Link href="/register" style={[styles.link, { color: palette.texts.link }]}>

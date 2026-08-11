@@ -21,9 +21,18 @@ export const useRegister = () => {
   };
 
   const handleRegister = async () => {
+    if (!form.nombre.trim()) {
+      Alert.alert("Datos incompletos", "Ingresa tu nombre");
+      return;
+    }
+
     setDataStates({ ...DATA_STATES_DEFAULT, isLoading: true });
     try {
-      const result = await registerUseCase.execute(form.email, form.password, form.nombre);
+      const result = await registerUseCase.execute(
+        form.email,
+        form.password,
+        form.nombre.trim(),
+      );
       setUser(result);
       router.replace("/tasks");
     } catch (error: any) {
