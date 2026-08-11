@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
-import { createTaskUseCase, updateTaskUseCase } from "../../di/task.dependencies";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
 import { useTaskImage } from "./useTaskImage.hook";
+import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 const EMPTY_TASK: TaskEntity = {
   titulo: "",
@@ -16,6 +16,7 @@ const EMPTY_TASK: TaskEntity = {
 export const useNewTask = () => {
   const router = useRouter();
   const { user } = useAuthContext();
+  const { createTaskUseCase, updateTaskUseCase } = useTaskDependencies();
   const { pickAndUpload } = useTaskImage(user?.id ?? "");
 
   const [task, setTask] = useState<TaskEntity>(EMPTY_TASK);

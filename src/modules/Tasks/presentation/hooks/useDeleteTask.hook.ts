@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Alert } from "react-native";
-import { deleteTaskUseCase } from "../../di/task.dependencies";
+import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 export const useDeleteTask = (onDeleted?: () => void) => {
+  const { deleteTaskUseCase } = useTaskDependencies();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const confirmDelete = (id: string) => {

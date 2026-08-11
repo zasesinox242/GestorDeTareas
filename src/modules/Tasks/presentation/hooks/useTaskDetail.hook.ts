@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { TaskEntity } from "../../domain/entities/task.entity";
-import { getTaskByIdUseCase } from "../../di/task.dependencies";
+import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 export const useTaskDetail = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { getTaskByIdUseCase } = useTaskDependencies();
   const [task, setTask] = useState<TaskEntity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -16,7 +17,7 @@ export const useTaskDetail = () => {
         .execute(id)
         .then(setTask)
         .finally(() => setIsLoading(false));
-    }, [id]),
+    }, [getTaskByIdUseCase, id]),
   );
 
   return { id, task, isLoading };

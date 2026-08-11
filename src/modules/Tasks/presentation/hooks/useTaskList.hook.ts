@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { TaskEntity } from "../../domain/entities/task.entity";
-import { getTasksUseCase, updateTaskUseCase } from "../../di/task.dependencies";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
+import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 export const useTaskList = () => {
   const { user } = useAuthContext();
+  const { getTasksUseCase, updateTaskUseCase } = useTaskDependencies();
   const [tasks, setTasks] = useState<TaskEntity[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -22,7 +23,7 @@ export const useTaskList = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [user?.id]);
+  }, [getTasksUseCase, user?.id]);
 
   // Recarga la lista cada vez que la pantalla vuelve a estar en foco
   // (por ejemplo, al volver de crear/editar una tarea).

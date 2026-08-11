@@ -2,15 +2,16 @@ import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
-import { getTaskByIdUseCase, updateTaskUseCase } from "../../di/task.dependencies";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
 import { useDeleteTask } from "./useDeleteTask.hook";
 import { useTaskImage } from "./useTaskImage.hook";
+import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 export const useEditTask = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthContext();
+  const { getTaskByIdUseCase, updateTaskUseCase } = useTaskDependencies();
   const { pickAndUpload } = useTaskImage(user?.id ?? "");
 
   const [task, setTask] = useState<TaskEntity | null>(null);
@@ -22,7 +23,7 @@ export const useEditTask = () => {
   useEffect(() => {
     if (!id) return;
     getTaskByIdUseCase.execute(id).then(setTask).finally(() => setIsLoading(false));
-  }, [id]);
+  }, [getTaskByIdUseCase, id]);
 
   const handleChange = <K extends keyof TaskEntity>(field: K, value: TaskEntity[K]) => {
     setTask((prev) => (prev ? { ...prev, [field]: value } : prev));
