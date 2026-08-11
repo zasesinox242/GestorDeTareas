@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
@@ -42,6 +42,9 @@ export const TaskDetailScreen = () => {
 
       {task && (
         <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
+          {!!task.imagenUrl && (
+            <Image source={{ uri: task.imagenUrl }} style={styles.image} />
+          )}
           <Row label="Título" value={task.titulo} palette={palette} />
           {!!task.descripcion && <Row label="Descripción" value={task.descripcion} palette={palette} />}
           <Row label="Prioridad" value={PRIORIDAD_LABEL[task.prioridad] ?? task.prioridad} palette={palette} />
@@ -68,6 +71,7 @@ const Row = ({ label, value, palette }: { label: string; value: string; palette:
 
 const styles = StyleSheet.create({
   card: { borderRadius: 12, padding: 16, gap: 12 },
+  image: { width: "100%", height: 220, borderRadius: 12 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   value: { fontWeight: "600" },
 });

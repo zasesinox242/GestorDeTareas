@@ -17,6 +17,7 @@ Firebase Authentication para las cuentas y AsyncStorage para la persistencia loc
 - Restauración automática de la sesión al volver a abrir la app.
 - Perfil con foto, nombre, correo y método de acceso en la pestaña Ajustes.
 - Creación, consulta, edición y eliminación de tareas.
+- Imagen opcional por tarea, subida a Firebase Storage (`tasks/{uid}/...`) y visible en el detalle.
 - Separación local de tareas por identificador de usuario.
 - Tema claro y oscuro.
 - Rutas protegidas con Expo Router.
@@ -176,7 +177,8 @@ el contexto escucha `onAuthStateChanged` para reconstruir el perfil.
 | Expo | ~54.0.34 | Runtime, desarrollo y builds |
 | Expo Router | ~6.0.24 | Navegación basada en archivos |
 | React Native | 0.81.5 | Interfaz móvil |
-| Firebase | ^12.17.1 | Autenticación y sesión |
+| Firebase | ^12.17.1 | Autenticación, sesión y almacenamiento de imágenes (Storage) |
+| Expo Image Picker | ~17.0.11 | Selección de imágenes de la galería para adjuntarlas a una tarea |
 | React Native Nitro Google Sign-In | ^1.3.0 | Cuenta Google mediante APIs nativas modernas |
 | React Native Nitro Modules | ^0.36.5 | Puente nativo requerido por Google Sign-In |
 | Expo Dev Client | ~6.0.21 | Pruebas de módulos nativos fuera de Expo Go |
@@ -186,5 +188,7 @@ el contexto escucha `onAuthStateChanged` para reconstruir el perfil.
 ## Alcance de esta integración
 
 Esta etapa modifica únicamente autenticación y perfil. Las tareas continúan usando su data source
-local; SQLite, Firestore, Storage e imágenes quedan fuera de este avance para no mezclar el trabajo
-asignado a los siguientes integrantes.
+local; SQLite y Firestore quedan fuera de este avance para no mezclar el trabajo asignado a los
+siguientes integrantes. Como excepción, las tareas ahora pueden tener una imagen opcional
+(`imagenUrl`) subida a Firebase Storage: requiere haber habilitado Storage en modo producción con
+las reglas de `storage.rules` y completar `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` en `.env`.

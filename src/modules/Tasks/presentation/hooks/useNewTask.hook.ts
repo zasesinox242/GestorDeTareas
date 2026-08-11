@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
-import { createTaskUseCase } from "../../di/task.dependencies";
+import { createTaskUseCase, updateTaskUseCase } from "../../di/task.dependencies";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
+import { useTaskImage } from "./useTaskImage.hook";
 
 const EMPTY_TASK: TaskEntity = {
   titulo: "",
@@ -15,9 +16,11 @@ const EMPTY_TASK: TaskEntity = {
 export const useNewTask = () => {
   const router = useRouter();
   const { user } = useAuthContext();
+  const { pickAndUpload } = useTaskImage(user?.id ?? "");
 
   const [task, setTask] = useState<TaskEntity>(EMPTY_TASK);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const handleChange = <K extends keyof TaskEntity>(field: K, value: TaskEntity[K]) => {
     setTask((prev) => ({ ...prev, [field]: value }));
@@ -36,8 +39,10 @@ export const useNewTask = () => {
 
     setIsSaving(true);
     try {
-      await createTaskUseCase.execute(task, user.id);
-      router.back();
+      // Una vez creada, la tarea ya tiene id: se queda en esta pantalla para
+      // permitir adjuntar una foto (useTaskImage necesita el id) antes de volver.
+      const created = await createTaskUseCase.execute(task, user.id);
+      setTask(created);
     } catch (error: any) {
       Alert.alert("Error", error?.message ?? "No se pudo crear la tarea");
     } finally {
@@ -45,5 +50,33 @@ export const useNewTask = () => {
     }
   };
 
-  return { task, isSaving, handleChange, handleSubmit };
+  const handlePickImage = async () => {
+    if (!task.id || !user?.id) return;
+
+    setIsUploadingImage(true);
+    try {
+      const imagenUrl = await pickAndUpload(task.id);
+      if (imagenUrl) {
+        const updated = await updateTaskUseCase.execute({ ...task, imagenUrl });
+        setTask(updated);
+      }
+    } catch (error: any) {
+      Alert.alert("Error", error?.message ?? "No se pudo subir la imagen");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleFinish = () => router.back();
+
+  return {
+    task,
+    isSaving,
+    isUploadingImage,
+    isCreated: !!task.id,
+    handleChange,
+    handleSubmit,
+    handlePickImage,
+    handleFinish,
+  };
 };

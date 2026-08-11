@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// Reglas de Firebase Storage.
+// Cada usuario solo puede leer/escribir las imágenes de tareas que le pertenecen,
+// dentro de la ruta tasks/{ownerId}/... usada por useTaskImage.hook.ts.
+//
+// Cómo aplicarlas:
+//   Firebase Console → Storage → Rules → pega este contenido → Publicar.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /tasks/{ownerId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == ownerId;
+    }
+  }
+}

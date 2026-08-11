@@ -6,7 +6,16 @@ import { TaskForm } from "../components/TaskForm.component";
 import { useEditTask } from "../hooks/useEditTask.hook";
 
 export const EditTaskScreen = () => {
-  const { task, isLoading, isSaving, handleChange, handleSubmit, handleDelete } = useEditTask();
+  const {
+    task,
+    isLoading,
+    isSaving,
+    isUploadingImage,
+    handleChange,
+    handleSubmit,
+    handleDelete,
+    handlePickImage,
+  } = useEditTask();
 
   return (
     <BackgroundView>
@@ -21,6 +30,8 @@ export const EditTaskScreen = () => {
             onSubmit={handleSubmit}
             loading={isSaving}
             submitLabel="Guardar cambios"
+            onPickImage={handlePickImage}
+            isUploadingImage={isUploadingImage}
           />
           <CustomButton title="Eliminar tarea" color="error" variant="outlined" onPress={handleDelete} />
         </>

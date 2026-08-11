@@ -9,10 +9,19 @@ export class TaskModel implements TaskEntity {
     public id?: string,
     public descripcion?: string,
     public fecha?: string,
+    public imagenUrl?: string,
   ) {}
 
   static fromDTO(dto: TaskDtoResponse): TaskModel {
-    return new TaskModel(dto.titulo, dto.completada, dto.prioridad, dto.id, dto.descripcion, dto.fecha);
+    return new TaskModel(
+      dto.titulo,
+      dto.completada,
+      dto.prioridad,
+      dto.id,
+      dto.descripcion,
+      dto.fecha,
+      dto.imagenUrl,
+    );
   }
 
   static fromEntity(entity: TaskEntity): TaskModel {
@@ -23,6 +32,7 @@ export class TaskModel implements TaskEntity {
       entity.id,
       entity.descripcion,
       entity.fecha,
+      entity.imagenUrl,
     );
   }
 
@@ -33,6 +43,7 @@ export class TaskModel implements TaskEntity {
       completada: this.completada,
       prioridad: this.prioridad,
       fecha: this.fecha ?? new Date().toISOString(),
+      imagenUrl: this.imagenUrl,
     };
   }
 }

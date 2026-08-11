@@ -7,4 +7,5 @@ export interface TaskEntity {
   completada: boolean;
   prioridad: TaskPriority;
   fecha?: string;
+  imagenUrl?: string;
 }
