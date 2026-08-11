@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Switch, Text, View } from "react-native";
+import { Alert, Image, Platform, StyleSheet, Switch, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
@@ -11,25 +11,39 @@ export const SettingsScreen = () => {
   const { palette, toggleTheme } = useThemeContext();
   const { user, setUser } = useAuthContext();
   const isDark = palette.schema === "dark";
+  const profileInitial = (user?.nombre || user?.email || "U").charAt(0).toUpperCase();
+  const providerLabel = user?.proveedor === "google" ? "Google" : "Correo y contraseña";
+
+  const logout = async () => {
+    try {
+      await logoutUseCase.execute();
+      setUser(null);
+      router.replace("/");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo cerrar sesión";
+
+      if (Platform.OS === "web") {
+        window.alert(message);
+      } else {
+        Alert.alert("Error", message);
+      }
+    }
+  };
 
   const handleLogout = () => {
+    if (Platform.OS === "web") {
+      if (window.confirm("¿Seguro que deseas cerrar sesión?")) {
+        void logout();
+      }
+      return;
+    }
+
     Alert.alert("Cerrar sesión", "¿Seguro que deseas cerrar sesión?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Cerrar sesión",
         style: "destructive",
-        onPress: async () => {
-          try {
-            await logoutUseCase.execute();
-            setUser(null);
-            router.replace("/");
-          } catch (error) {
-            Alert.alert(
-              "Error",
-              error instanceof Error ? error.message : "No se pudo cerrar sesión",
-            );
-          }
-        },
+        onPress: () => void logout(),
       },
     ]);
   };
@@ -39,6 +53,29 @@ export const SettingsScreen = () => {
       <Text style={[styles.title, { color: palette.texts.primary }]}>Perfil</Text>
 
       <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
+        <View style={styles.profileHeader}>
+          {user?.fotoUrl ? (
+            <Image source={{ uri: user.fotoUrl }} style={styles.avatar} />
+          ) : (
+            <View
+              style={[
+                styles.avatarFallback,
+                { backgroundColor: palette.colors.primary.default },
+              ]}
+            >
+              <Text style={[styles.avatarText, { color: palette.colors.surface }]}>
+                {profileInitial}
+              </Text>
+            </View>
+          )}
+          <View style={styles.profileSummary}>
+            <Text style={[styles.profileName, { color: palette.texts.primary }]}>
+              {user?.nombre || "Usuario"}
+            </Text>
+            <Text style={{ color: palette.texts.secondary }}>{providerLabel}</Text>
+          </View>
+        </View>
+
         <Text style={{ color: palette.texts.secondary }}>Correo</Text>
         <Text style={[styles.value, { color: palette.texts.primary }]}>{user?.email}</Text>
         {!!user?.nombre && (
@@ -47,6 +84,8 @@ export const SettingsScreen = () => {
             <Text style={[styles.value, { color: palette.texts.primary }]}>{user.nombre}</Text>
           </>
         )}
+        <Text style={{ color: palette.texts.secondary, marginTop: 12 }}>Método de acceso</Text>
+        <Text style={[styles.value, { color: palette.texts.primary }]}>{providerLabel}</Text>
       </View>
 
       <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
@@ -70,6 +109,18 @@ export const SettingsScreen = () => {
 const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold" },
   card: { borderRadius: 12, padding: 16 },
+  profileHeader: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 20 },
+  profileSummary: { flex: 1 },
+  profileName: { fontSize: 18, fontWeight: "700", marginBottom: 2 },
+  avatar: { width: 60, height: 60, borderRadius: 30 },
+  avatarFallback: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { fontSize: 24, fontWeight: "800" },
   value: { fontSize: 16, fontWeight: "600" },
   section: { fontSize: 16, fontWeight: "700", marginBottom: 12 },
   row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },

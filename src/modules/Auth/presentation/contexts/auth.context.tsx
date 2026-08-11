@@ -34,6 +34,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
                     id: firebaseUser.uid,
                     email: firebaseUser.email ?? "",
                     nombre: firebaseUser.displayName ?? undefined,
+                    fotoUrl: firebaseUser.photoURL ?? undefined,
+                    proveedor: firebaseUser.providerData.some(
+                      ({ providerId }) => providerId === "google.com",
+                    )
+                      ? "google"
+                      : "password",
                   }
                 : null,
             );

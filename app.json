@@ -14,9 +14,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.zasesinox242.gestordetareas",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.zasesinox242.gestordetareas",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
