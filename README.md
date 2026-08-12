@@ -1,7 +1,7 @@
 # GestorDeTareas
 
-Aplicación móvil académica para gestionar tareas personales. Usa Expo Router, TypeScript,
-Firebase Authentication para las cuentas y AsyncStorage para la persistencia local de tareas.
+Aplicación móvil de gestión de tareas construida con React Native (Expo), con persistencia
+local en SQLite y sincronización en la nube con Firebase (Authentication, Firestore y Storage).
 
 ## Integrantes
 
@@ -10,27 +10,32 @@ Firebase Authentication para las cuentas y AsyncStorage para la persistencia loc
 - Renato Aurora
 - Junior Carrion
 
-## Funcionalidades actuales
+---
 
-- Registro e inicio de sesión con correo y contraseña mediante Firebase Authentication.
-- Acceso con Google en Android/iOS mediante una compilación de desarrollo y en la versión web.
-- Restauración automática de la sesión al volver a abrir la app.
-- Perfil con foto, nombre, correo y método de acceso en la pestaña Ajustes.
-- Creación, consulta, edición y eliminación de tareas.
-- Imagen opcional por tarea, subida a Firebase Storage (`tasks/{uid}/...`) y visible en el detalle.
-- Separación local de tareas por identificador de usuario.
-- Tema claro y oscuro.
-- Rutas protegidas con Expo Router.
+## 1. Configuración del entorno
 
-## Requisitos
+### Requisitos previos
 
-- Node.js 20 o superior.
-- npm.
-- Expo Go para probar correo/contraseña.
-- Una compilación de desarrollo para probar Google en Android/iOS.
-- Un proyecto propio en Firebase.
+- Node.js 20 o superior y npm.
+- Android Studio con Android SDK instalado (necesario para compilar la app nativa).
+- Variable de entorno `ANDROID_HOME` apuntando a la carpeta del SDK.
+- JDK 17 instalado. Si el sistema tiene otra versión de Java por defecto, fuerza JDK 17
+  agregando esta línea a `android/gradle.properties` (ruta según tu instalación):
+```properties
+  org.gradle.java.home=C:\\Program Files\\Microsoft\\jdk-17.x.x.x-hotspot
+```
+- Un dispositivo Android físico (con **Depuración USB** activada) o un emulador de Android
+  Studio.
+- Cuenta de Expo y `eas-cli` instalado globalmente (para generar el APK):
+```bash
+  npm install -g eas-cli
+  eas login
+```
 
-## Instalación
+> Google Sign-In, Firestore y SQLite requieren una compilación de desarrollo nativa — **no
+> funcionan dentro de Expo Go**.
+
+### Instalación del proyecto
 
 ```bash
 git clone https://github.com/zasesinox242/GestorDeTareas.git
@@ -38,28 +43,31 @@ cd GestorDeTareas
 npm install
 ```
 
-## Configuración de Firebase Authentication
+---
 
-1. Abre [Firebase Console](https://console.firebase.google.com/) y crea un proyecto.
-2. En **Authentication → Sign-in method**, habilita **Correo electrónico/Contraseña** y
-   **Google**.
-3. En **Configuración del proyecto → Tus apps**, registra una app **Web**.
-4. Copia `.env.example` como `.env`.
-5. Completa las variables con la configuración de la app Web que entrega Firebase.
+## 2. Credenciales de Firebase (variables de entorno)
 
-En macOS o Linux:
+### 2.1 Crear el proyecto en Firebase
+
+1. Ve a [Firebase Console](https://console.firebase.google.com/) y crea un proyecto.
+2. Habilita los siguientes servicios:
+   - **Authentication** → Sign-in method → habilita **Correo/Contraseña** y **Google**.
+   - **Firestore Database** → crea la base de datos en modo producción.
+   - **Storage** → crea el bucket (requiere el proyecto en plan **Blaze**; el uso de un
+     proyecto académico se mantiene dentro de la cuota gratuita incluida).
+3. En **Configuración del proyecto → Tus apps**, registra una app **Web** y copia su
+   configuración (`firebaseConfig`).
+
+### 2.2 Configurar el archivo `.env`
+
+Copia la plantilla:
 
 ```bash
-cp .env.example .env
+cp .env.example .env        # macOS / Linux
+Copy-Item .env.example .env # PowerShell
 ```
 
-En PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Contenido esperado:
+Completa `.env` con los valores de tu proyecto de Firebase:
 
 ```env
 EXPO_PUBLIC_FIREBASE_API_KEY=...
@@ -72,123 +80,87 @@ EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=....apps.googleusercontent.com
 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=....apps.googleusercontent.com
 ```
 
-El archivo `.env` no se confirma en Git. Reinicia Expo después de modificarlo. La configuración
-pública de Firebase identifica el proyecto; la autorización real debe controlarse mediante
-Firebase Authentication y las reglas de cada servicio.
+El archivo `.env` no se sube al repositorio (está en `.gitignore`). Reinicia el servidor de
+Expo después de modificarlo (`npx expo start --clear`).
 
-### Configuración de Google en Android
+### 2.3 Configurar Google Sign-In (Android)
 
-1. En Firebase, registra una app Android con el package
-   `com.zasesinox242.gestordetareas`.
-2. Agrega la huella SHA-1 de la firma de desarrollo. Para entregas o publicación agrega también
-   las huellas de EAS/Play App Signing.
-3. En Google Cloud/Firebase, identifica el cliente OAuth de tipo **Web** y copia su Client ID en
-   `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`.
-4. Vuelve a generar la compilación de desarrollo después de cambiar la configuración nativa.
-
-Android usa el Web Client ID de forma explícita, por lo que este avance no requiere confirmar un
-`google-services.json`. El package y la huella SHA deben coincidir con el cliente Android creado
-en Firebase.
-
-### Configuración de Google en iOS
-
-Registra una app iOS con el bundle ID `com.zasesinox242.gestordetareas` y copia su Client ID en
-`EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. `app.config.ts` deriva el URL scheme requerido y activa el
-plugin nativo al crear la compilación.
-
-> Google no funciona dentro de Expo Go porque necesita código nativo. El botón informa esta
-> condición sin impedir que correo/contraseña continúe funcionando.
-
-## Ejecutar la aplicación
-
-Para probar registro e inicio de sesión por correo dentro de Expo Go:
-
+1. En Firebase, registra una app **Android** con el package `com.zasesinox242.gestordetareas`.
+2. Obtén el SHA-1 de la firma de desarrollo local:
 ```bash
-npm install
-npx expo start --go
+   cd android
+   ./gradlew signingReport
 ```
+3. Registra ese SHA-1 (y, para el APK final, también el SHA-1 del keystore de EAS — ver
+   `eas credentials`) como cliente OAuth de tipo **Android** en Google Cloud Console, con el
+   mismo package name.
+4. Copia el **Client ID de tipo Web** (no el de Android) en `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`.
 
-Comandos alternativos:
+### 2.4 Reglas de seguridad
 
-```bash
-npm run android
-npm run ios
-npm run web
-npm run typecheck
-```
+**Firestore** (Firestore Database → Reglas):
+rules_version = '2';
+service cloud.firestore {
+match /databases/{database}/documents {
+match /tasks/{taskId} {
+allow read, update, delete: if request.auth != null
+&& request.auth.uid == resource.data.ownerId;
+allow create: if request.auth != null
+&& request.auth.uid == request.resource.data.ownerId;
+}
+}
+}
 
-Para redes donde el dispositivo no puede alcanzar directamente la computadora:
+**Storage**: publica el contenido de `storage.rules` (incluido en este repositorio) en
+Storage → Reglas.
 
-```bash
-npx expo start --tunnel
-```
+---
 
-## Generar un instalable
+## 3. Pasos para ejecutar y generar el APK
 
-Para crear e instalar una compilación de desarrollo compatible con Google:
+### 3.1 Ejecutar en modo desarrollo
+
+Con un dispositivo conectado por USB (o un emulador activo):
 
 ```bash
 npx expo run:android
 ```
 
-Después de instalarla una vez, las siguientes sesiones pueden iniciarse con:
+Este comando compila la app nativa (incluye Firebase, SQLite y Google Sign-In) y la instala en
+el dispositivo. Solo es necesario correrlo de nuevo si cambias dependencias nativas.
+
+Para las siguientes sesiones, con la app ya instalada, basta con levantar el servidor:
 
 ```bash
 npx expo start --dev-client
 ```
 
-## Estructura
+Si el dispositivo y la computadora no están en la misma red:
 
-```text
-GestorDeTareas/
-├── app.config.ts                    # Configuración condicional de Google para iOS
-├── app.json                         # Configuración de Expo
-├── package.json                     # Scripts y dependencias
-├── .env.example                     # Plantilla de configuración Firebase
-└── src/
-    ├── app/                         # Rutas de Expo Router
-    │   ├── _layout.tsx              # Providers y navegación raíz
-    │   ├── index.tsx                # Entrada e inicio de sesión
-    │   ├── register.tsx             # Registro
-    │   └── (tabs)/                  # Tareas y Ajustes
-    ├── config/
-    │   ├── firebase/                # App, Auth y persistencia por plataforma
-    │   └── theme/                   # Paletas, textos y sombras
-    ├── core/                        # Componentes, contextos y utilidades comunes
-    └── modules/
-        ├── Auth/                    # Domain, data, DI y presentation de cuentas
-        └── Tasks/                   # Domain, data, DI y presentation de tareas
+```bash
+npx expo start --dev-client --tunnel
 ```
 
-El proyecto conserva la separación por capas:
+### 3.2 Generar el APK instalable
 
-```text
-presentation → use-cases → repositories → data-sources
+1. Configura el proyecto para EAS (una sola vez):
+```bash
+   eas build:configure
+```
+2. Sube las variables del `.env` local al ambiente de build (EAS compila en sus propios
+   servidores, no lee el `.env` de tu máquina):
+```bash
+   cp .env .env.local
+   eas env:push --environment preview
+```
+3. Genera el instalable:
+```bash
+   eas build --platform android --profile preview
 ```
 
-La implementación `AuthFirebaseDataSourceImpl` reemplaza el almacenamiento local de usuarios sin
-cambiar los contratos del dominio. Firebase mantiene la sesión con AsyncStorage en Android/iOS y
-el contexto escucha `onAuthStateChanged` para reconstruir el perfil.
+El perfil `preview` (definido en `eas.json`) genera un `.apk` firmado, listo para instalar en
+cualquier dispositivo Android (activando "orígenes desconocidos"), a diferencia de un `.aab`
+que solo sirve para publicar en Play Store.
 
-## Dependencias principales
-
-| Librería | Versión | Uso |
-|---|---:|---|
-| Expo | ~54.0.34 | Runtime, desarrollo y builds |
-| Expo Router | ~6.0.24 | Navegación basada en archivos |
-| React Native | 0.81.5 | Interfaz móvil |
-| Firebase | ^12.17.1 | Autenticación, sesión y almacenamiento de imágenes (Storage) |
-| Expo Image Picker | ~17.0.11 | Selección de imágenes de la galería para adjuntarlas a una tarea |
-| React Native Nitro Google Sign-In | ^1.3.0 | Cuenta Google mediante APIs nativas modernas |
-| React Native Nitro Modules | ^0.36.5 | Puente nativo requerido por Google Sign-In |
-| Expo Dev Client | ~6.0.21 | Pruebas de módulos nativos fuera de Expo Go |
-| AsyncStorage | 2.2.0 | Persistencia de Firebase en React Native y tareas locales |
-| TypeScript | ~5.9.2 | Tipado estático |
-
-## Alcance de esta integración
-
-Esta etapa modifica únicamente autenticación y perfil. Las tareas continúan usando su data source
-local; SQLite y Firestore quedan fuera de este avance para no mezclar el trabajo asignado a los
-siguientes integrantes. Como excepción, las tareas ahora pueden tener una imagen opcional
-(`imagenUrl`) subida a Firebase Storage: requiere haber habilitado Storage en modo producción con
-las reglas de `storage.rules` y completar `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` en `.env`.
+Al finalizar el build (5-15 minutos), la terminal entrega un enlace de descarga directo; también
+queda disponible en [expo.dev](https://expo.dev) → tu proyecto → **Builds**.
