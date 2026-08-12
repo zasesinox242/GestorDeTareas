@@ -78,9 +78,11 @@ export class GoogleAuthRemoteDataSourceImpl implements GoogleAuthRemoteDataSourc
       const firebaseCredential = GoogleAuthProvider.credential(
         response.data.idToken,
       );
+      
       const result = await signInWithCredential(auth, firebaseCredential);
       return UserModel.fromFirebaseUser(result.user);
     } catch (error) {
+      console.log("[GOOGLE_SIGNIN] ERROR CRUDO:", JSON.stringify(error), error);
       if (isGoogleCancellationError(error)) return null;
       if (error instanceof FirebaseError) {
         throw mapFirebaseAuthError(

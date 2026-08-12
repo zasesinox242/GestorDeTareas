@@ -38,6 +38,12 @@
           "photosPermission": "Permite el acceso a tus fotos para adjuntarlas a una tarea."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "40cc2e66-5763-4d61-9d1e-64aedc663f4a"
+      }
+    }
   }
 }
