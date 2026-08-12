@@ -1,6 +1,6 @@
 import { type SQLiteDatabase } from "expo-sqlite";
 
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 
 export const migrateDatabase = async (db: SQLiteDatabase): Promise<void> => {
   await db.execAsync("PRAGMA journal_mode = WAL;");
@@ -27,6 +27,18 @@ export const migrateDatabase = async (db: SQLiteDatabase): Promise<void> => {
 
       CREATE INDEX IF NOT EXISTS idx_tasks_ownerId
       ON tasks (ownerId);
+    `);
+  }
+
+  if (currentVersion < 2) {
+    // synced = 0 -> falta subir a Firestore. 1 -> ya está en la nube.
+    await db.execAsync(`
+      ALTER TABLE tasks ADD COLUMN synced INTEGER NOT NULL DEFAULT 0;
+
+      CREATE TABLE IF NOT EXISTS pending_deletes (
+        id TEXT PRIMARY KEY NOT NULL,
+        ownerId TEXT NOT NULL
+      );
     `);
   }
 

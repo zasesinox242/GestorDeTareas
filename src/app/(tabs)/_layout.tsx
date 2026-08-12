@@ -1,4 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
+import { useTaskSync } from "@/modules/Tasks/presentation/hooks/useTaskSync.hook";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeContext } from "@/core/contexts/theme.context";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
@@ -9,7 +10,7 @@ export default function TabsLayout() {
 
   if (isLoading) return null;
   if (!user) return <Redirect href="/" />;
-
+  useTaskSync();
   return (
     <Tabs
       screenOptions={{

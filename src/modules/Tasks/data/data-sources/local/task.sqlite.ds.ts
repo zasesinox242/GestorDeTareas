@@ -8,6 +8,7 @@ type TaskRow = Omit<TaskDtoResponse, "completada" | "descripcion" | "imagenUrl">
   completada: number;
   descripcion: string | null;
   imagenUrl: string | null;
+  synced: number;
 };
 
 const rowToModel = (row: TaskRow): TaskModel =>
@@ -26,7 +27,6 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
       "SELECT * FROM tasks WHERE ownerId = ? ORDER BY fecha DESC",
       [ownerId],
     );
-
     return rows.map(rowToModel);
   }
 
@@ -35,7 +35,6 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
       "SELECT * FROM tasks WHERE id = ?",
       [id],
     );
-
     return row ? rowToModel(row) : null;
   }
 
@@ -45,8 +44,8 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
 
     await this.db.runAsync(
       `INSERT INTO tasks
-        (id, ownerId, titulo, descripcion, completada, prioridad, fecha, imagenUrl)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, ownerId, titulo, descripcion, completada, prioridad, fecha, imagenUrl, synced)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
       [
         id,
         ownerId,
@@ -70,7 +69,7 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
     const dto = TaskModel.fromEntity(task).toDTO();
     const result = await this.db.runAsync(
       `UPDATE tasks
-       SET titulo = ?, descripcion = ?, completada = ?, prioridad = ?, fecha = ?, imagenUrl = ?
+       SET titulo = ?, descripcion = ?, completada = ?, prioridad = ?, fecha = ?, imagenUrl = ?, synced = 0
        WHERE id = ?`,
       [
         dto.titulo,
@@ -91,10 +90,44 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
   }
 
   async deleteTask(id: string): Promise<TaskModel> {
-    const existing = await this.getTaskById(id);
-    if (!existing) throw new Error("Tarea no encontrada");
+    const row = await this.db.getFirstAsync<TaskRow>(
+      "SELECT * FROM tasks WHERE id = ?",
+      [id],
+    );
+    if (!row) throw new Error("Tarea no encontrada");
 
+    // Registrar la baja ANTES de borrar, para poder replicarla en Firestore.
+    await this.db.runAsync(
+      "INSERT OR REPLACE INTO pending_deletes (id, ownerId) VALUES (?, ?)",
+      [id, row.ownerId],
+    );
     await this.db.runAsync("DELETE FROM tasks WHERE id = ?", [id]);
-    return existing;
+    return rowToModel(row);
+  }
+
+  // --- Sincronización ---
+
+  async getPendingSyncTasks(ownerId: string): Promise<TaskModel[]> {
+    const rows = await this.db.getAllAsync<TaskRow>(
+      "SELECT * FROM tasks WHERE ownerId = ? AND synced = 0",
+      [ownerId],
+    );
+    return rows.map(rowToModel);
+  }
+
+  async markAsSynced(id: string): Promise<void> {
+    await this.db.runAsync("UPDATE tasks SET synced = 1 WHERE id = ?", [id]);
+  }
+
+  async getPendingDeletes(ownerId: string): Promise<string[]> {
+    const rows = await this.db.getAllAsync<{ id: string }>(
+      "SELECT id FROM pending_deletes WHERE ownerId = ?",
+      [ownerId],
+    );
+    return rows.map((r) => r.id);
+  }
+
+  async clearPendingDelete(id: string): Promise<void> {
+    await this.db.runAsync("DELETE FROM pending_deletes WHERE id = ?", [id]);
   }
 }
