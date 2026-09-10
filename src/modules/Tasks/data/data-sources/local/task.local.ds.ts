@@ -3,10 +3,10 @@ import { TaskModel } from "../../models/task.model";
 
 export interface TaskLocalDataSource {
   getTasks: (ownerId: string) => Promise<TaskModel[]>;
-  getTaskById: (id: string) => Promise<TaskModel | null>;
+  getTaskById: (id: string, ownerId: string) => Promise<TaskModel | null>;
   createTask: (task: TaskEntity, ownerId: string) => Promise<TaskModel>;
-  updateTask: (task: TaskEntity) => Promise<TaskModel>;
-  deleteTask: (id: string) => Promise<TaskModel>;
+  updateTask: (task: TaskEntity, ownerId: string) => Promise<TaskModel>;
+  deleteTask: (id: string, ownerId: string) => Promise<TaskModel>;
 
   // --- Sincronización ---
   getPendingSyncTasks: (ownerId: string) => Promise<TaskModel[]>;

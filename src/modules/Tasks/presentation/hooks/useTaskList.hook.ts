@@ -34,10 +34,11 @@ export const useTaskList = () => {
   );
 
   const toggleComplete = async (task: TaskEntity) => {
+    if (!user?.id) return;
     const updated = { ...task, completada: !task.completada };
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
     try {
-      await updateTaskUseCase.execute(updated);
+      await updateTaskUseCase.execute(updated, user.id);
     } catch {
       loadTasks(); // revertir si falla
     }

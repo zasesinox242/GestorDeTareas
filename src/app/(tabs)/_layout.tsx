@@ -8,9 +8,12 @@ export default function TabsLayout() {
   const { palette } = useThemeContext();
   const { user, isLoading } = useAuthContext();
 
+  // El hook debe llamarse siempre, en el mismo orden, sin importar el estado
+  // de auth (Rules of Hooks). El propio hook decide internamente si sincroniza.
+  useTaskSync();
+
   if (isLoading) return null;
   if (!user) return <Redirect href="/" />;
-  useTaskSync();
   return (
     <Tabs
       screenOptions={{

@@ -58,7 +58,7 @@ export const useNewTask = () => {
     try {
       const imagenUrl = await pickAndUpload(task.id);
       if (imagenUrl) {
-        const updated = await updateTaskUseCase.execute({ ...task, imagenUrl });
+        const updated = await updateTaskUseCase.execute({ ...task, imagenUrl }, user.id);
         setTask(updated);
       }
     } catch (error: any) {

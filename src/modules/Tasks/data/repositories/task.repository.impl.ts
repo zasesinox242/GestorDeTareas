@@ -18,19 +18,19 @@ export class TaskRepositoryImpl implements TaskRepository {
     return this.taskLocalDataSource.getTasks(ownerId);
   }
 
-  async getTaskById(id: string): Promise<TaskEntity | null> {
-    return this.taskLocalDataSource.getTaskById(id);
+  async getTaskById(id: string, ownerId: string): Promise<TaskEntity | null> {
+    return this.taskLocalDataSource.getTaskById(id, ownerId);
   }
 
   async createTask(task: TaskEntity, ownerId: string): Promise<TaskEntity> {
     return this.taskLocalDataSource.createTask(task, ownerId);
   }
 
-  async updateTask(task: TaskEntity): Promise<TaskEntity> {
-    return this.taskLocalDataSource.updateTask(task);
+  async updateTask(task: TaskEntity, ownerId: string): Promise<TaskEntity> {
+    return this.taskLocalDataSource.updateTask(task, ownerId);
   }
 
-  async deleteTask(id: string): Promise<TaskEntity> {
-    return this.taskLocalDataSource.deleteTask(id);
+  async deleteTask(id: string, ownerId: string): Promise<TaskEntity> {
+    return this.taskLocalDataSource.deleteTask(id, ownerId);
   }
 }

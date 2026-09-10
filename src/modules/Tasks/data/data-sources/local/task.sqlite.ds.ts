@@ -30,10 +30,10 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
     return rows.map(rowToModel);
   }
 
-  async getTaskById(id: string): Promise<TaskModel | null> {
+  async getTaskById(id: string, ownerId: string): Promise<TaskModel | null> {
     const row = await this.db.getFirstAsync<TaskRow>(
-      "SELECT * FROM tasks WHERE id = ?",
-      [id],
+      "SELECT * FROM tasks WHERE id = ? AND ownerId = ?",
+      [id, ownerId],
     );
     return row ? rowToModel(row) : null;
   }
@@ -58,19 +58,19 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
       ],
     );
 
-    const created = await this.getTaskById(id);
+    const created = await this.getTaskById(id, ownerId);
     if (!created) throw new Error("No se pudo recuperar la tarea creada");
     return created;
   }
 
-  async updateTask(task: TaskEntity): Promise<TaskModel> {
+  async updateTask(task: TaskEntity, ownerId: string): Promise<TaskModel> {
     if (!task.id) throw new Error("Task ID is required");
 
     const dto = TaskModel.fromEntity(task).toDTO();
     const result = await this.db.runAsync(
       `UPDATE tasks
        SET titulo = ?, descripcion = ?, completada = ?, prioridad = ?, fecha = ?, imagenUrl = ?, synced = 0
-       WHERE id = ?`,
+       WHERE id = ? AND ownerId = ?`,
       [
         dto.titulo,
         dto.descripcion ?? null,
@@ -79,20 +79,21 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
         dto.fecha,
         dto.imagenUrl ?? null,
         task.id,
+        ownerId,
       ],
     );
 
     if (result.changes === 0) throw new Error("Tarea no encontrada");
 
-    const updated = await this.getTaskById(task.id);
+    const updated = await this.getTaskById(task.id, ownerId);
     if (!updated) throw new Error("No se pudo recuperar la tarea actualizada");
     return updated;
   }
 
-  async deleteTask(id: string): Promise<TaskModel> {
+  async deleteTask(id: string, ownerId: string): Promise<TaskModel> {
     const row = await this.db.getFirstAsync<TaskRow>(
-      "SELECT * FROM tasks WHERE id = ?",
-      [id],
+      "SELECT * FROM tasks WHERE id = ? AND ownerId = ?",
+      [id, ownerId],
     );
     if (!row) throw new Error("Tarea no encontrada");
 
@@ -101,7 +102,7 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
       "INSERT OR REPLACE INTO pending_deletes (id, ownerId) VALUES (?, ?)",
       [id, row.ownerId],
     );
-    await this.db.runAsync("DELETE FROM tasks WHERE id = ?", [id]);
+    await this.db.runAsync("DELETE FROM tasks WHERE id = ? AND ownerId = ?", [id, ownerId]);
     return rowToModel(row);
   }
 

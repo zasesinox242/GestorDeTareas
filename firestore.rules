@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// Reglas de Cloud Firestore.
+// Cada usuario solo puede leer/crear/editar/borrar sus propias tareas,
+// identificadas por el campo ownerId == uid del usuario autenticado.
+//
+// Cómo aplicarlas:
+//   Firebase Console → Firestore Database → Reglas → pega este contenido → Publicar.
+//   (o con Firebase CLI: firebase deploy --only firestore:rules)
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tasks/{taskId} {
+      // Leer, actualizar o borrar: solo el dueño del documento existente.
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+
+      // Crear: solo si el documento que se está creando queda asignado
+      // al usuario que hace la petición (no se puede crear una tarea a nombre de otro).
+      allow create: if isSignedIn() && isOwner(request.resource.data.ownerId);
+    }
+
+    // Por defecto, todo lo demás queda bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(ownerId) {
+      return request.auth.uid == ownerId;
+    }
+  }
+}

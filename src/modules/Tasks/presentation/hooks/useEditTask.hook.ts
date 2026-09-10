@@ -21,20 +21,23 @@ export const useEditTask = () => {
   const { confirmDelete } = useDeleteTask(() => router.replace("/tasks"));
 
   useEffect(() => {
-    if (!id) return;
-    getTaskByIdUseCase.execute(id).then(setTask).finally(() => setIsLoading(false));
-  }, [getTaskByIdUseCase, id]);
+    if (!id || !user?.id) return;
+    getTaskByIdUseCase
+      .execute(id, user.id)
+      .then(setTask)
+      .finally(() => setIsLoading(false));
+  }, [getTaskByIdUseCase, id, user?.id]);
 
   const handleChange = <K extends keyof TaskEntity>(field: K, value: TaskEntity[K]) => {
     setTask((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
   const handleSubmit = async () => {
-    if (!task) return;
+    if (!task || !user?.id) return;
 
     setIsSaving(true);
     try {
-      await updateTaskUseCase.execute(task);
+      await updateTaskUseCase.execute(task, user.id);
       router.back();
     } catch (error: any) {
       Alert.alert("Error", error?.message ?? "No se pudo actualizar la tarea");
@@ -54,7 +57,7 @@ export const useEditTask = () => {
     try {
       const imagenUrl = await pickAndUpload(task.id);
       if (imagenUrl) {
-        const updated = await updateTaskUseCase.execute({ ...task, imagenUrl });
+        const updated = await updateTaskUseCase.execute({ ...task, imagenUrl }, user.id);
         setTask(updated);
       }
     } catch (error: any) {
