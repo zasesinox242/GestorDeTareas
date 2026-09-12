@@ -1,6 +1,6 @@
 import { type SQLiteDatabase } from "expo-sqlite";
 
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 export const migrateDatabase = async (db: SQLiteDatabase): Promise<void> => {
   await db.execAsync("PRAGMA journal_mode = WAL;");
@@ -39,6 +39,15 @@ export const migrateDatabase = async (db: SQLiteDatabase): Promise<void> => {
         id TEXT PRIMARY KEY NOT NULL,
         ownerId TEXT NOT NULL
       );
+    `);
+  }
+
+  if (currentVersion < 3) {
+    // Fecha y hora límite de la tarea (nullable: no todas las tareas la tienen).
+    // Se usa para el indicador de "vencida"/"vence hoy" y para programar
+    // la notificación local de recordatorio.
+    await db.execAsync(`
+      ALTER TABLE tasks ADD COLUMN fechaVencimiento TEXT;
     `);
   }
 

@@ -8,6 +8,7 @@ export interface TaskDtoResponse {
   completada: boolean;
   prioridad: TaskPriority;
   fecha: string;
+  fechaVencimiento?: string;
   imagenUrl?: string;
 }
 
@@ -17,5 +18,6 @@ export interface TaskDtoRequest {
   completada: boolean;
   prioridad: TaskPriority;
   fecha: string;
+  fechaVencimiento?: string;
   imagenUrl?: string;
 }

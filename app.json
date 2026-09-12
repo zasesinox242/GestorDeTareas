@@ -37,6 +37,12 @@
         {
           "photosPermission": "Permite el acceso a tus fotos para adjuntarlas a una tarea."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#6F00ED"
+        }
       ]
     ],
     "extra": {

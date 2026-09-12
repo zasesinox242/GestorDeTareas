@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
+import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
 import { useDeleteTask } from "./useDeleteTask.hook";
 import { useTaskImage } from "./useTaskImage.hook";
 import { useTaskDependencies } from "../contexts/task-dependencies.context";
@@ -37,7 +38,8 @@ export const useEditTask = () => {
 
     setIsSaving(true);
     try {
-      await updateTaskUseCase.execute(task, user.id);
+      const updated = await updateTaskUseCase.execute(task, user.id);
+      await scheduleTaskDueNotification(updated);
       router.back();
     } catch (error: any) {
       Alert.alert("Error", error?.message ?? "No se pudo actualizar la tarea");

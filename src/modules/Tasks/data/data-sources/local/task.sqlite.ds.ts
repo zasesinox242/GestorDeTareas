@@ -4,10 +4,11 @@ import { TaskDtoResponse } from "../../dtos/task.dto";
 import { TaskModel } from "../../models/task.model";
 import { TaskLocalDataSource } from "./task.local.ds";
 
-type TaskRow = Omit<TaskDtoResponse, "completada" | "descripcion" | "imagenUrl"> & {
+type TaskRow = Omit<TaskDtoResponse, "completada" | "descripcion" | "imagenUrl" | "fechaVencimiento"> & {
   completada: number;
   descripcion: string | null;
   imagenUrl: string | null;
+  fechaVencimiento: string | null;
   synced: number;
 };
 
@@ -17,6 +18,7 @@ const rowToModel = (row: TaskRow): TaskModel =>
     completada: row.completada === 1,
     descripcion: row.descripcion ?? undefined,
     imagenUrl: row.imagenUrl ?? undefined,
+    fechaVencimiento: row.fechaVencimiento ?? undefined,
   });
 
 export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
@@ -44,8 +46,8 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
 
     await this.db.runAsync(
       `INSERT INTO tasks
-        (id, ownerId, titulo, descripcion, completada, prioridad, fecha, imagenUrl, synced)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+        (id, ownerId, titulo, descripcion, completada, prioridad, fecha, fechaVencimiento, imagenUrl, synced)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
       [
         id,
         ownerId,
@@ -54,6 +56,7 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
         dto.completada ? 1 : 0,
         dto.prioridad,
         dto.fecha,
+        dto.fechaVencimiento ?? null,
         dto.imagenUrl ?? null,
       ],
     );
@@ -69,7 +72,7 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
     const dto = TaskModel.fromEntity(task).toDTO();
     const result = await this.db.runAsync(
       `UPDATE tasks
-       SET titulo = ?, descripcion = ?, completada = ?, prioridad = ?, fecha = ?, imagenUrl = ?, synced = 0
+       SET titulo = ?, descripcion = ?, completada = ?, prioridad = ?, fecha = ?, fechaVencimiento = ?, imagenUrl = ?, synced = 0
        WHERE id = ? AND ownerId = ?`,
       [
         dto.titulo,
@@ -77,6 +80,7 @@ export class TaskSqliteDataSourceImpl implements TaskLocalDataSource {
         dto.completada ? 1 : 0,
         dto.prioridad,
         dto.fecha,
+        dto.fechaVencimiento ?? null,
         dto.imagenUrl ?? null,
         task.id,
         ownerId,

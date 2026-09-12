@@ -1,4 +1,5 @@
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
@@ -41,7 +42,10 @@ export const TaskDetailScreen = () => {
       )}
 
       {task && (
-        <View style={[styles.card, { backgroundColor: palette.colors.surface }]}>
+        <Animated.View
+          entering={FadeInUp.springify().damping(16)}
+          style={[styles.card, { backgroundColor: palette.colors.surface }]}
+        >
           {!!task.imagenUrl && (
             <Image source={{ uri: task.imagenUrl }} style={styles.image} />
           )}
@@ -50,13 +54,16 @@ export const TaskDetailScreen = () => {
           <Row label="Prioridad" value={PRIORIDAD_LABEL[task.prioridad] ?? task.prioridad} palette={palette} />
           <Row label="Estado" value={task.completada ? "Completada" : "Pendiente"} palette={palette} />
           {!!task.fecha && <Row label="Fecha de creación" value={formatFecha(task.fecha)} palette={palette} />}
+          {!!task.fechaVencimiento && (
+            <Row label="Fecha límite" value={formatFecha(task.fechaVencimiento)} palette={palette} />
+          )}
 
           <CustomButton
             title="Editar tarea"
             onPress={() => router.push(`/tasks/${id}/edit`)}
             style={{ marginTop: 20 }}
           />
-        </View>
+        </Animated.View>
       )}
     </BackgroundView>
   );

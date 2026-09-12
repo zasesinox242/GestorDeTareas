@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { TaskEntity } from "../../domain/entities/task.entity";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
+import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
 import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
 export const useTaskList = () => {
@@ -39,6 +40,7 @@ export const useTaskList = () => {
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
     try {
       await updateTaskUseCase.execute(updated, user.id);
+      await scheduleTaskDueNotification(updated);
     } catch {
       loadTasks(); // revertir si falla
     }

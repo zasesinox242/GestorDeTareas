@@ -4,6 +4,7 @@ import { CustomButton } from "@/core/components/CustomButton.component";
 import { InputField } from "@/core/components/InputField.components";
 import { useThemeContext } from "@/core/contexts/theme.context";
 import { TaskEntity, TaskPriority } from "../../domain/entities/task.entity";
+import { DueDatePicker } from "./DueDatePicker.component";
 
 const PRIORIDADES: { value: TaskPriority; label: string }[] = [
   { value: "baja", label: "Baja" },
@@ -68,6 +69,13 @@ export const TaskForm: FC<TaskFormProps> = ({
           />
         ))}
       </View>
+
+      <Text style={[styles.label, { color: palette.texts.primary }]}>Fecha límite</Text>
+      <DueDatePicker
+        value={task.fechaVencimiento}
+        onChange={(value) => onChange("fechaVencimiento", value)}
+        disabled={disabled}
+      />
 
       {onPickImage && (
         <View style={styles.imageSection}>

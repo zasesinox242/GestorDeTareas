@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
+import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
 import { useTaskImage } from "./useTaskImage.hook";
 import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
@@ -44,6 +45,7 @@ export const useNewTask = () => {
       // permitir adjuntar una foto (useTaskImage necesita el id) antes de volver.
       const created = await createTaskUseCase.execute(task, user.id);
       setTask(created);
+      await scheduleTaskDueNotification(created);
     } catch (error: any) {
       Alert.alert("Error", error?.message ?? "No se pudo crear la tarea");
     } finally {

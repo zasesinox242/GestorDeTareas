@@ -45,8 +45,8 @@ export const TaskListScreen = () => {
         refreshing={isLoading}
         onRefresh={reload}
         contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <TaskCard task={item} onToggle={toggleComplete} onDelete={confirmDelete} />
+        renderItem={({ item, index }) => (
+          <TaskCard task={item} index={index} onToggle={toggleComplete} onDelete={confirmDelete} />
         )}
       />
     </BackgroundView>

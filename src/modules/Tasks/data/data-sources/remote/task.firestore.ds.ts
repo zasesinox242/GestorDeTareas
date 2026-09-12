@@ -25,6 +25,7 @@ export class TaskFirestoreDataSourceImpl implements TaskRemoteDataSource {
         completada: task.completada,
         prioridad: task.prioridad,
         fecha: task.fecha,
+        fechaVencimiento: task.fechaVencimiento ?? null,
         imagenUrl: task.imagenUrl ?? null,
       },
       { merge: true },
