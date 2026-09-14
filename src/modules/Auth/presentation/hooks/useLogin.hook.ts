@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 import { loginUseCase } from "../../di/auth.dependencies";
 import { useAuthContext } from "../contexts/auth.context";
+import { useToast } from "@/core/contexts/toast.context";
 
 const DATA_STATES_DEFAULT = {
   isLoading: false,
@@ -12,6 +12,7 @@ const DATA_STATES_DEFAULT = {
 export const useLogin = () => {
   const router = useRouter();
   const { setUser } = useAuthContext();
+  const { showToast } = useToast();
 
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [dataStates, setDataStates] = useState(DATA_STATES_DEFAULT);
@@ -27,7 +28,7 @@ export const useLogin = () => {
       setUser(result);
       router.replace("/tasks");
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "Error al iniciar sesión");
+      showToast(error?.message ?? "Error al iniciar sesión", "error");
       setDataStates({ ...DATA_STATES_DEFAULT, isError: true });
     } finally {
       setDataStates((prev) => ({ ...prev, isLoading: false }));

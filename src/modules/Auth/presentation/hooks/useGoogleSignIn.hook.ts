@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
-import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { loginWithGoogleUseCase } from "../../di/auth.dependencies";
 import { useAuthContext } from "../contexts/auth.context";
+import { useToast } from "@/core/contexts/toast.context";
 
 export const useGoogleSignIn = () => {
   const router = useRouter();
   const { setUser } = useAuthContext();
+  const { showToast } = useToast();
   const inProgress = useRef(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,11 +24,9 @@ export const useGoogleSignIn = () => {
       setUser(result.user);
       router.replace("/tasks");
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error instanceof Error
-          ? error.message
-          : "No se pudo iniciar sesión con Google",
+      showToast(
+        error instanceof Error ? error.message : "No se pudo iniciar sesión con Google",
+        "error",
       );
     } finally {
       inProgress.current = false;

@@ -50,6 +50,7 @@ export const CustomButton: FC<CustomButtonProps> = ({
               : undefined,
         },
         { ...(variant === "outlined" ? getOutlinedStyle(pressed) : undefined) },
+        typeof props.style === "function" ? props.style({ pressed }) : props.style,
       ]}
     >
       {({ pressed }) => (

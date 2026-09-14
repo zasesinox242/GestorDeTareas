@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 import { registerUseCase } from "../../di/auth.dependencies";
 import { useAuthContext } from "../contexts/auth.context";
+import { useToast } from "@/core/contexts/toast.context";
 
 const DATA_STATES_DEFAULT = {
   isLoading: false,
@@ -12,6 +12,7 @@ const DATA_STATES_DEFAULT = {
 export const useRegister = () => {
   const router = useRouter();
   const { setUser } = useAuthContext();
+  const { showToast } = useToast();
 
   const [form, setForm] = useState({ nombre: "", email: "", password: "" });
   const [dataStates, setDataStates] = useState(DATA_STATES_DEFAULT);
@@ -22,7 +23,7 @@ export const useRegister = () => {
 
   const handleRegister = async () => {
     if (!form.nombre.trim()) {
-      Alert.alert("Datos incompletos", "Ingresa tu nombre");
+      showToast("Ingresa tu nombre", "error");
       return;
     }
 
@@ -36,7 +37,7 @@ export const useRegister = () => {
       setUser(result);
       router.replace("/tasks");
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "Error al registrarse");
+      showToast(error?.message ?? "Error al registrarse", "error");
       setDataStates({ ...DATA_STATES_DEFAULT, isError: true });
     } finally {
       setDataStates((prev) => ({ ...prev, isLoading: false }));

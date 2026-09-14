@@ -1,8 +1,10 @@
-import { Alert, Image, Platform, StyleSheet, Switch, Text, View } from "react-native";
+import { Image, StyleSheet, Switch, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
+import { useToast } from "@/core/contexts/toast.context";
+import { useConfirm } from "@/core/contexts/confirm.context";
 import { useAuthContext } from "../contexts/auth.context";
 import { logoutUseCase } from "../../di/auth.dependencies";
 
@@ -10,6 +12,8 @@ export const SettingsScreen = () => {
   const router = useRouter();
   const { palette, toggleTheme } = useThemeContext();
   const { user, setUser } = useAuthContext();
+  const { showToast } = useToast();
+  const confirm = useConfirm();
   const isDark = palette.schema === "dark";
   const profileInitial = (user?.nombre || user?.email || "U").charAt(0).toUpperCase();
   const providerLabel = user?.proveedor === "google" ? "Google" : "Correo y contraseña";
@@ -21,31 +25,18 @@ export const SettingsScreen = () => {
       router.replace("/");
     } catch (error) {
       const message = error instanceof Error ? error.message : "No se pudo cerrar sesión";
-
-      if (Platform.OS === "web") {
-        window.alert(message);
-      } else {
-        Alert.alert("Error", message);
-      }
+      showToast(message, "error");
     }
   };
 
-  const handleLogout = () => {
-    if (Platform.OS === "web") {
-      if (window.confirm("¿Seguro que deseas cerrar sesión?")) {
-        void logout();
-      }
-      return;
-    }
-
-    Alert.alert("Cerrar sesión", "¿Seguro que deseas cerrar sesión?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Cerrar sesión",
-        style: "destructive",
-        onPress: () => void logout(),
-      },
-    ]);
+  const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: "Cerrar sesión",
+      message: "¿Seguro que deseas cerrar sesión?",
+      confirmText: "Cerrar sesión",
+      destructive: true,
+    });
+    if (confirmed) await logout();
   };
 
   return (

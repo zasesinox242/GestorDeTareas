@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
+import { useToast } from "@/core/contexts/toast.context";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
 import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
 import { useDeleteTask } from "./useDeleteTask.hook";
@@ -12,6 +12,7 @@ export const useEditTask = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthContext();
+  const { showToast } = useToast();
   const { getTaskByIdUseCase, updateTaskUseCase } = useTaskDependencies();
   const { pickAndUpload } = useTaskImage(user?.id ?? "");
 
@@ -40,9 +41,10 @@ export const useEditTask = () => {
     try {
       const updated = await updateTaskUseCase.execute(task, user.id);
       await scheduleTaskDueNotification(updated);
+      showToast("Tarea actualizada", "success");
       router.back();
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "No se pudo actualizar la tarea");
+      showToast(error?.message ?? "No se pudo actualizar la tarea", "error");
     } finally {
       setIsSaving(false);
     }
@@ -63,7 +65,7 @@ export const useEditTask = () => {
         setTask(updated);
       }
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "No se pudo subir la imagen");
+      showToast(error?.message ?? "No se pudo subir la imagen", "error");
     } finally {
       setIsUploadingImage(false);
     }

@@ -4,6 +4,8 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
+  View,
 } from "react-native";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
@@ -22,6 +24,22 @@ export const LoginScreen = () => {
         style={{ flex: 1, backgroundColor: palette.colors.primary.light }}
         onPress={Platform.OS === "web" ? undefined : Keyboard.dismiss}
       >
+        {/* Formas decorativas: puro color, sin dependencias nuevas. */}
+        <View style={styles.blobsLayer} pointerEvents="none">
+          <View
+            style={[
+              styles.blob,
+              { width: 260, height: 260, top: -90, right: -60, backgroundColor: palette.colors.primary.default },
+            ]}
+          />
+          <View
+            style={[
+              styles.blob,
+              { width: 180, height: 180, top: 40, left: -70, backgroundColor: "#ffffff", opacity: 0.18 },
+            ]}
+          />
+        </View>
+
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, paddingTop: 120 }}
           keyboardDismissMode="on-drag"
@@ -44,3 +62,8 @@ export const LoginScreen = () => {
     </KeyboardAvoidingView>
   );
 };
+
+const styles = StyleSheet.create({
+  blobsLayer: { ...StyleSheet.absoluteFillObject, overflow: "hidden" },
+  blob: { position: "absolute", borderRadius: 999, opacity: 0.22 },
+});

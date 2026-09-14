@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 import { TaskEntity } from "../../domain/entities/task.entity";
+import { useToast } from "@/core/contexts/toast.context";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
 import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
 import { useTaskImage } from "./useTaskImage.hook";
@@ -17,6 +17,7 @@ const EMPTY_TASK: TaskEntity = {
 export const useNewTask = () => {
   const router = useRouter();
   const { user } = useAuthContext();
+  const { showToast } = useToast();
   const { createTaskUseCase, updateTaskUseCase } = useTaskDependencies();
   const { pickAndUpload } = useTaskImage(user?.id ?? "");
 
@@ -30,12 +31,12 @@ export const useNewTask = () => {
 
   const handleSubmit = async () => {
     if (!task.titulo) {
-      Alert.alert("Error", "Ingresa un título para la tarea");
+      showToast("Ingresa un título para la tarea", "error");
       return;
     }
 
     if (!user?.id) {
-      Alert.alert("Error", "No se detectó una sesión activa");
+      showToast("No se detectó una sesión activa", "error");
       return;
     }
 
@@ -46,8 +47,9 @@ export const useNewTask = () => {
       const created = await createTaskUseCase.execute(task, user.id);
       setTask(created);
       await scheduleTaskDueNotification(created);
+      showToast("Tarea creada", "success");
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "No se pudo crear la tarea");
+      showToast(error?.message ?? "No se pudo crear la tarea", "error");
     } finally {
       setIsSaving(false);
     }
@@ -64,7 +66,7 @@ export const useNewTask = () => {
         setTask(updated);
       }
     } catch (error: any) {
-      Alert.alert("Error", error?.message ?? "No se pudo subir la imagen");
+      showToast(error?.message ?? "No se pudo subir la imagen", "error");
     } finally {
       setIsUploadingImage(false);
     }

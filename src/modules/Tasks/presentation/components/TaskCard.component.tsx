@@ -147,13 +147,14 @@ export const TaskCard: FC<TaskCardProps> = ({ task, index = 0, onToggle, onDelet
             <View style={styles.metaRow}>
               <View
                 style={[
-                  styles.priorityDot,
-                  { backgroundColor: priorityColor[task.prioridad] },
+                  styles.priorityChip,
+                  { backgroundColor: `${priorityColor[task.prioridad]}26` },
                 ]}
-              />
-              <Text style={{ color: palette.texts.tertiary, fontSize: 13 }}>
-                Prioridad: {PRIORIDAD_LABEL[task.prioridad] ?? task.prioridad}
-              </Text>
+              >
+                <Text style={[styles.priorityChipText, { color: priorityColor[task.prioridad] }]}>
+                  {PRIORIDAD_LABEL[task.prioridad] ?? task.prioridad}
+                </Text>
+              </View>
             </View>
 
             {!!task.fechaVencimiento && (
@@ -195,7 +196,12 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 16, fontWeight: "700" },
   completada: { textDecorationLine: "line-through", opacity: 0.6 },
   metaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 4 },
-  priorityDot: { width: 8, height: 8, borderRadius: 4 },
+  priorityChip: {
+    borderRadius: 999,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+  },
+  priorityChipText: { fontSize: 12, fontWeight: "700" },
   deleteAction: {
     justifyContent: "center",
     alignItems: "center",
