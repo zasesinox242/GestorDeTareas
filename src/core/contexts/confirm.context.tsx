@@ -1,6 +1,11 @@
-import { createContext, FC, ReactNode, useCallback, useContext, useRef, useState } from "react";
+import { createContext, FC, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
-import Animated, { FadeIn, FadeOut, ZoomIn } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { CustomButton } from "../components/CustomButton.component";
 import { useThemeContext } from "./theme.context";
 
@@ -16,6 +21,61 @@ interface ConfirmOptions {
 type ConfirmFn = (options: ConfirmOptions) => Promise<boolean>;
 
 const ConfirmContext = createContext<ConfirmFn | undefined>(undefined);
+
+/**
+ * Contenido animado del modal. La visibilidad real del Modal nativo depende
+ * únicamente del estado `options` (no de esta animación) — esto solo agrega
+ * el efecto visual, animado a mano en vez de con `entering`/`exiting` (ver
+ * nota en AppSplash.component.tsx sobre por qué).
+ */
+const ConfirmCard: FC<{ options: ConfirmOptions; palette: any; onRespond: (value: boolean) => void }> = ({
+  options,
+  palette,
+  onRespond,
+}) => {
+  const backdropOpacity = useSharedValue(0);
+  const cardScale = useSharedValue(0.85);
+  const cardOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    backdropOpacity.value = withTiming(1, { duration: 180 });
+    cardOpacity.value = withTiming(1, { duration: 200 });
+    cardScale.value = withTiming(1, { duration: 220, easing: Easing.out(Easing.back(1.4)) });
+  }, [backdropOpacity, cardOpacity, cardScale]);
+
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: backdropOpacity.value }));
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ scale: cardScale.value }],
+  }));
+
+  return (
+    <Animated.View style={[styles.backdrop, backdropStyle]}>
+      <Animated.View style={[styles.card, cardStyle, { backgroundColor: palette.colors.surface }]}>
+        <Text style={[styles.title, { color: palette.texts.primary }]}>{options.title}</Text>
+        {!!options.message && (
+          <Text style={[styles.message, { color: palette.texts.secondary }]}>{options.message}</Text>
+        )}
+
+        <View style={styles.actions}>
+          <CustomButton
+            title={options.cancelText ?? "Cancelar"}
+            variant="outlined"
+            color="secondary"
+            onPress={() => onRespond(false)}
+            style={styles.actionButton}
+          />
+          <CustomButton
+            title={options.confirmText ?? "Confirmar"}
+            color={options.destructive ? "error" : "primary"}
+            onPress={() => onRespond(true)}
+            style={styles.actionButton}
+          />
+        </View>
+      </Animated.View>
+    </Animated.View>
+  );
+};
 
 export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { palette } = useThemeContext();
@@ -39,37 +99,7 @@ export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
       {children}
 
       <Modal visible={!!options} transparent animationType="none" onRequestClose={() => respond(false)}>
-        <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.backdrop}>
-          {options && (
-            <Animated.View
-              entering={ZoomIn.springify().damping(18)}
-              style={[styles.card, { backgroundColor: palette.colors.surface }]}
-            >
-              <Text style={[styles.title, { color: palette.texts.primary }]}>{options.title}</Text>
-              {!!options.message && (
-                <Text style={[styles.message, { color: palette.texts.secondary }]}>
-                  {options.message}
-                </Text>
-              )}
-
-              <View style={styles.actions}>
-                <CustomButton
-                  title={options.cancelText ?? "Cancelar"}
-                  variant="outlined"
-                  color="secondary"
-                  onPress={() => respond(false)}
-                  style={styles.actionButton}
-                />
-                <CustomButton
-                  title={options.confirmText ?? "Confirmar"}
-                  color={options.destructive ? "error" : "primary"}
-                  onPress={() => respond(true)}
-                  style={styles.actionButton}
-                />
-              </View>
-            </Animated.View>
-          )}
-        </Animated.View>
+        {options && <ConfirmCard options={options} palette={palette} onRespond={respond} />}
       </Modal>
     </ConfirmContext.Provider>
   );

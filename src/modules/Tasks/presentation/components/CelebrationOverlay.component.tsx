@@ -2,10 +2,8 @@ import { FC, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
-  FadeOut,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withSequence,
   withTiming,
 } from "react-native-reanimated";
@@ -17,9 +15,14 @@ interface CelebrationOverlayProps {
   onFinish: () => void;
 }
 
-const VISIBLE_MS = 1500;
+const HOLD_MS = 1200;
+const FADE_OUT_MS = 250;
 
-/** Se muestra brevemente cuando se completan TODAS las tareas de la lista. */
+/**
+ * Se muestra brevemente cuando se completan TODAS las tareas de la lista.
+ * El cierre se controla con setTimeout, no con la prop `exiting` de
+ * Reanimated (ver nota en AppSplash.component.tsx sobre por qué).
+ */
 export const CelebrationOverlay: FC<CelebrationOverlayProps> = ({ onFinish }) => {
   const { palette } = useThemeContext();
   const scale = useSharedValue(0.4);
@@ -33,8 +36,16 @@ export const CelebrationOverlay: FC<CelebrationOverlayProps> = ({ onFinish }) =>
       withTiming(1, { duration: 150 }),
     );
 
-    const timeout = setTimeout(onFinish, VISIBLE_MS);
-    return () => clearTimeout(timeout);
+    const fadeTimer = setTimeout(() => {
+      opacity.value = withTiming(0, { duration: FADE_OUT_MS });
+    }, HOLD_MS);
+
+    const removeTimer = setTimeout(onFinish, HOLD_MS + FADE_OUT_MS);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+    };
   }, [onFinish, opacity, scale]);
 
   const badgeStyle = useAnimatedStyle(() => ({
@@ -43,18 +54,14 @@ export const CelebrationOverlay: FC<CelebrationOverlayProps> = ({ onFinish }) =>
   }));
 
   return (
-    <Animated.View
-      exiting={FadeOut.duration(250)}
-      style={styles.overlay}
-      pointerEvents="none"
-    >
+    <View style={styles.overlay} pointerEvents="none">
       <Animated.View
         style={[styles.badge, badgeStyle, { backgroundColor: palette.colors.success }]}
       >
         <Ionicons name="checkmark-circle" size={40} color="#fff" />
         <Text style={styles.text}>¡Todo listo! 🎉</Text>
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 };
 

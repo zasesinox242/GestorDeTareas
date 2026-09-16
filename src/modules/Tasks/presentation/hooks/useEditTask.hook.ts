@@ -4,7 +4,6 @@ import { TaskEntity } from "../../domain/entities/task.entity";
 import { useToast } from "@/core/contexts/toast.context";
 import { useAuthContext } from "@/modules/Auth/presentation/contexts/auth.context";
 import { scheduleTaskDueNotification } from "@/core/services/taskNotifications.service";
-import { useDeleteTask } from "./useDeleteTask.hook";
 import { useTaskImage } from "./useTaskImage.hook";
 import { useTaskDependencies } from "../contexts/task-dependencies.context";
 
@@ -20,7 +19,6 @@ export const useEditTask = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const { confirmDelete } = useDeleteTask(() => router.replace("/tasks"));
 
   useEffect(() => {
     if (!id || !user?.id) return;
@@ -50,10 +48,6 @@ export const useEditTask = () => {
     }
   };
 
-  const handleDelete = () => {
-    if (task?.id) confirmDelete(task.id);
-  };
-
   const handlePickImage = async () => {
     if (!task?.id || !user?.id) return;
 
@@ -78,7 +72,6 @@ export const useEditTask = () => {
     isUploadingImage,
     handleChange,
     handleSubmit,
-    handleDelete,
     handlePickImage,
   };
 };

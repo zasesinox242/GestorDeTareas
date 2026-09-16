@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "parcialmovil",
+    "name": "TareaX",
     "slug": "parcialmovil",
     "version": "1.0.0",
     "scheme": "gestordetareas",
@@ -10,8 +10,8 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./src/assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#6F00ED"
     },
     "ios": {
       "bundleIdentifier": "com.zasesinox242.gestordetareas",
@@ -21,7 +21,7 @@
       "package": "com.zasesinox242.gestordetareas",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6F00ED"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false

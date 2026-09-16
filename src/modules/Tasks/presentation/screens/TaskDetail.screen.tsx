@@ -1,11 +1,13 @@
+import { useEffect } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import { BackgroundView } from "@/core/components/BackgroundView.component";
 import { CustomButton } from "@/core/components/CustomButton.component";
 import { useThemeContext } from "@/core/contexts/theme.context";
 import { TaskHeader } from "../components/TaskHeader.component";
 import { useTaskDetail } from "../hooks/useTaskDetail.hook";
+import { useDeleteTask } from "../hooks/useDeleteTask.hook";
 
 const PRIORIDAD_LABEL: Record<string, string> = {
   baja: "Baja",
@@ -30,6 +32,21 @@ export const TaskDetailScreen = () => {
   const router = useRouter();
   const { palette } = useThemeContext();
   const { id, task, isLoading } = useTaskDetail();
+  const { confirmDelete, isDeleting } = useDeleteTask(() => router.replace("/tasks"));
+  const cardOpacity = useSharedValue(0);
+  const cardTranslateY = useSharedValue(16);
+
+  useEffect(() => {
+    if (!task) return;
+    // Animación manual (no `entering`): ver nota en AppSplash.component.tsx.
+    cardOpacity.value = withTiming(1, { duration: 260 });
+    cardTranslateY.value = withTiming(0, { duration: 260 });
+  }, [cardOpacity, cardTranslateY, task]);
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ translateY: cardTranslateY.value }],
+  }));
 
   return (
     <BackgroundView>
@@ -42,10 +59,7 @@ export const TaskDetailScreen = () => {
       )}
 
       {task && (
-        <Animated.View
-          entering={FadeInUp.springify().damping(16)}
-          style={[styles.card, { backgroundColor: palette.colors.surface }]}
-        >
+        <Animated.View style={[styles.card, cardStyle, { backgroundColor: palette.colors.surface }]}>
           {!!task.imagenUrl && (
             <Image source={{ uri: task.imagenUrl }} style={styles.image} />
           )}
@@ -62,6 +76,14 @@ export const TaskDetailScreen = () => {
             title="Editar tarea"
             onPress={() => router.push(`/tasks/${id}/edit`)}
             style={{ marginTop: 20 }}
+          />
+          <CustomButton
+            title="Eliminar tarea"
+            color="error"
+            variant="outlined"
+            disabled={isDeleting}
+            onPress={() => task.id && confirmDelete(task.id)}
+            style={{ marginTop: 12 }}
           />
         </Animated.View>
       )}

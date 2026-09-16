@@ -2,7 +2,6 @@ import { FC, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
-  FadeOut,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -16,18 +15,26 @@ interface AppSplashProps {
   onFinish: () => void;
 }
 
-const TOTAL_DURATION_MS = 1100;
+const HOLD_MS = 750;
+const FADE_OUT_MS = 300;
 
 /**
  * Pantalla de bienvenida propia, mostrada justo después de ocultar el splash
- * nativo de Expo (que es una imagen estática en blanco). Se anima sola y
- * avisa con onFinish cuando ya puede desmontarse.
+ * nativo de Expo (que es una imagen estática en blanco).
+ *
+ * IMPORTANTE: el cierre se controla con un setTimeout normal de JS, NO con
+ * la prop `exiting` de Reanimated. `exiting` depende de que el motor de
+ * animaciones avise cuándo terminó, y en ciertos entornos (New Architecture
+ * + algunas combinaciones nativas) ese aviso nunca llega y la vista se queda
+ * congelada en pantalla para siempre. Un temporizador de JS siempre se
+ * dispara, sin depender de nada del hilo nativo.
  */
 export const AppSplash: FC<AppSplashProps> = ({ onFinish }) => {
   const { palette } = useThemeContext();
   const iconScale = useSharedValue(0.6);
   const iconOpacity = useSharedValue(0);
   const textOpacity = useSharedValue(0);
+  const containerOpacity = useSharedValue(1);
 
   useEffect(() => {
     iconOpacity.value = withTiming(1, { duration: 280, easing: Easing.out(Easing.ease) });
@@ -37,26 +44,41 @@ export const AppSplash: FC<AppSplashProps> = ({ onFinish }) => {
     );
     textOpacity.value = withDelay(220, withTiming(1, { duration: 320 }));
 
-    const timeout = setTimeout(onFinish, TOTAL_DURATION_MS);
-    return () => clearTimeout(timeout);
-  }, [iconOpacity, iconScale, onFinish, textOpacity]);
+    // Al llegar a HOLD_MS, se inicia el fade visual...
+    const fadeTimer = setTimeout(() => {
+      containerOpacity.value = withTiming(0, { duration: FADE_OUT_MS });
+    }, HOLD_MS);
+
+    // ...y este es el que de verdad saca el componente del árbol, sin
+    // importar si la animación visual de arriba llegó a completarse.
+    const removeTimer = setTimeout(onFinish, HOLD_MS + FADE_OUT_MS);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+    };
+  }, [containerOpacity, iconOpacity, iconScale, onFinish, textOpacity]);
 
   const iconStyle = useAnimatedStyle(() => ({
     opacity: iconOpacity.value,
     transform: [{ scale: iconScale.value }],
   }));
   const textStyle = useAnimatedStyle(() => ({ opacity: textOpacity.value }));
+  const containerStyle = useAnimatedStyle(() => ({ opacity: containerOpacity.value }));
 
   return (
     <Animated.View
-      exiting={FadeOut.duration(300)}
-      style={[styles.container, { backgroundColor: palette.colors.primary.default }]}
+      style={[
+        styles.container,
+        containerStyle,
+        { backgroundColor: palette.colors.primary.default },
+      ]}
       pointerEvents="none"
     >
       <Animated.View style={[styles.iconCircle, iconStyle]}>
         <Ionicons name="checkmark-done" size={44} color={palette.colors.primary.default} />
       </Animated.View>
-      <Animated.Text style={[styles.title, textStyle]}>Gestor de Tareas</Animated.Text>
+      <Animated.Text style={[styles.title, textStyle]}>TareaX</Animated.Text>
     </Animated.View>
   );
 };

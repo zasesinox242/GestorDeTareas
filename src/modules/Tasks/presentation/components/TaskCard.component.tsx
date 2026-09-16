@@ -1,11 +1,11 @@
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Animated, {
-  FadeInDown,
   useAnimatedStyle,
   useSharedValue,
+  withDelay,
   withSequence,
   withTiming,
 } from "react-native-reanimated";
@@ -60,6 +60,16 @@ export const TaskCard: FC<TaskCardProps> = ({ task, index = 0, onToggle, onDelet
   const { palette } = useThemeContext();
   const swipeableRef = useRef<Swipeable>(null);
   const checkScale = useSharedValue(1);
+  const entryOpacity = useSharedValue(0);
+  const entryTranslateY = useSharedValue(16);
+
+  useEffect(() => {
+    // Entrada escalonada manual (fade + slide), en vez de la prop `entering`
+    // de Reanimated: ver la nota en AppSplash.component.tsx.
+    entryOpacity.value = withDelay(index * 60, withTiming(1, { duration: 260 }));
+    entryTranslateY.value = withDelay(index * 60, withTiming(0, { duration: 260 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const priorityColor: Record<TaskPriority, string> = {
     baja: palette.colors.success,
@@ -73,6 +83,10 @@ export const TaskCard: FC<TaskCardProps> = ({ task, index = 0, onToggle, onDelet
 
   const checkAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: checkScale.value }],
+  }));
+  const entryStyle = useAnimatedStyle(() => ({
+    opacity: entryOpacity.value,
+    transform: [{ translateY: entryTranslateY.value }],
   }));
 
   const handleToggle = () => {
@@ -105,11 +119,7 @@ export const TaskCard: FC<TaskCardProps> = ({ task, index = 0, onToggle, onDelet
   );
 
   return (
-    <Animated.View
-      // Entrada escalonada: cada tarjeta aparece un poco después que la anterior.
-      entering={FadeInDown.delay(index * 60).springify().damping(16)}
-      style={styles.wrapper}
-    >
+    <Animated.View style={[styles.wrapper, entryStyle]}>
       <Swipeable
         ref={swipeableRef}
         renderRightActions={renderRightActions}
